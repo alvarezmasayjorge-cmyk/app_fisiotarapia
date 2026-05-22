@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Dumbbell, Plus, X, Trash2 } from 'lucide-react';
 
 interface Exercise {
@@ -147,9 +148,15 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
                 <Trash2 className="w-4 h-4" />
               </button>
               <div className="flex items-start gap-3">
-                <div className="w-14 h-14 rounded-lg bg-teal-50 flex items-center justify-center shrink-0">
+                <div className="w-14 h-14 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 relative overflow-hidden">
                   {ex.imageUrl ? (
-                    <img src={ex.imageUrl} alt={ex.name} className="w-full h-full object-cover rounded-lg" />
+                    <Image
+                      src={ex.imageUrl}
+                      alt={ex.name}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
                   ) : (
                     <Dumbbell className="w-6 h-6 text-teal-600" />
                   )}

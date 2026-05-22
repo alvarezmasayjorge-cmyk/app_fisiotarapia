@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Circle, Play, AlertCircle, Flame, X, Calendar, Apple, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import ProgressChart from '../admin/patients/[id]/ProgressChart';
+import Image from 'next/image';
+import ProgressChart from '../admin/patients/[id]/LazyProgressChart';
 
 type ExerciseItem = {
   id: string;
@@ -213,11 +214,23 @@ export default function PatientDashboardClient({
                   >
                     {ytId ? (
                       <>
-                        <img src={`https://img.youtube.com/vi/${ytId}/default.jpg`} className="w-full h-full object-cover opacity-70 group-hover:opacity-50 transition-opacity" />
+                        <Image
+                          src={`https://img.youtube.com/vi/${ytId}/default.jpg`}
+                          alt={pe.exercise.name}
+                          fill
+                          sizes="64px"
+                          className="object-cover opacity-70 group-hover:opacity-50 transition-opacity"
+                        />
                         <Play className="w-6 h-6 text-white absolute" fill="currentColor" />
                       </>
                     ) : pe.exercise.imageUrl ? (
-                      <img src={pe.exercise.imageUrl} alt={pe.exercise.name} className="w-full h-full object-cover" />
+                      <Image
+                        src={pe.exercise.imageUrl}
+                        alt={pe.exercise.name}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
                     ) : (
                       <Play className="w-6 h-6 text-slate-400" />
                     )}

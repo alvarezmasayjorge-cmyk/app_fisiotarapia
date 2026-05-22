@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { ArrowLeft, Activity, AlertTriangle, Apple, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import ProgressChart from './ProgressChart';
+import ProgressChart from './LazyProgressChart';
 import ChatClient from '@/components/ChatClient';
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
