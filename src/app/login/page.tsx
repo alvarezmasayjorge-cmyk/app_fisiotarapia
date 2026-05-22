@@ -96,7 +96,7 @@ export default function LoginPage() {
             
             {process.env.NODE_ENV === 'development' && (
               <div className="mt-4 text-center text-xs text-slate-500">
-                <p>Demo Admin: doc.giovannadaza.app / admin123</p>
+                <p>Demo Admin: doc@giovannadaza.app / admin123</p>
                 <p>Demo Paciente: rodilla@paciente.app / paciente123</p>
               </div>
             )}

@@ -9,11 +9,11 @@ async function main() {
   // 1. Create Physio (Admin)
   const hashedAdminPassword = await bcrypt.hash('admin123', 10);
   const admin = await prisma.user.upsert({
-    where: { email: 'doc.giovannadaza.app' },
+    where: { email: 'doc@giovannadaza.app' },
     update: { name: 'Giovanna Daza' },
     create: {
       name: 'Giovanna Daza',
-      email: 'doc.giovannadaza.app',
+      email: 'doc@giovannadaza.app',
       password: hashedAdminPassword,
       role: 'ADMIN',
     },
