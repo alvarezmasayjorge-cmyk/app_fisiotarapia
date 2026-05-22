@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, MessageCircle, Calendar, FileText, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 export default function PatientLayout({
   children,
@@ -12,6 +13,7 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  usePushNotifications();
 
   const navItems = [
     { name: 'Inicio', href: '/patient', icon: Home },
@@ -62,11 +64,9 @@ export default function PatientLayout({
       {/* Main Content */}
       <main className="flex-1 w-full max-w-md mx-auto md:max-w-4xl md:p-8 pt-6 px-4">
         {/* Mobile Header */}
-        <div className="md:hidden flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Sentirse Única" width={140} height={50} className="object-contain" priority />
-          </div>
-          <button 
+        <div className="md:hidden flex justify-between items-center mb-4">
+          <Image src="/logo.png" alt="Sentirse Única" width={110} height={36} className="object-contain h-9 w-auto" priority />
+          <button
             onClick={() => signOut({ callbackUrl: '/login' })}
             className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg"
           >

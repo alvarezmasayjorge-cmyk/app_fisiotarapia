@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProgressChart from './LazyProgressChart';
 import ChatClient from '@/components/ChatClient';
+import ReminderButton from './ReminderButton';
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -59,12 +60,15 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           <h1 className="text-2xl font-bold text-slate-900">{profile.user.name}</h1>
           <p className="text-slate-500 text-sm">{profile.user.email} · {profile.diagnosis}</p>
         </div>
-        <Link
-          href={`/admin/patients/${id}/plan`}
-          className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm"
-        >
-          {plan ? 'Editar Plan' : 'Crear Plan'}
-        </Link>
+        <div className="flex items-center gap-2">
+          <ReminderButton patientUserId={profile.userId} patientName={profile.user.name} />
+          <Link
+            href={`/admin/patients/${id}/plan`}
+            className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm"
+          >
+            {plan ? 'Editar Plan' : 'Crear Plan'}
+          </Link>
+        </div>
       </div>
 
       {/* Info cards */}

@@ -35,6 +35,7 @@ model User {
   // Messages
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
+  pushSubscriptions PushSubscription[]
 }
 
 model PatientProfile {
@@ -141,6 +142,16 @@ model ExerciseLog {
   planExercise   PlanExercise @relation(fields: [planExerciseId], references: [id], onDelete: Cascade)
   date           DateTime  @default(now())
   completed      Boolean   @default(true)
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
 }
 
 model Message {
