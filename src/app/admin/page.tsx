@@ -55,50 +55,51 @@ export default async function AdminDashboard() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Hola, {session.user.name}</h1>
-        <p className="text-slate-500 mt-1">Resumen de tu clínica al día de hoy.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Hola, {session.user.name}</h1>
+        <p className="text-sm text-slate-500 mt-1">Resumen de tu clínica al día de hoy.</p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="bg-blue-50 p-3 rounded-lg text-blue-600">
-            <Users className="w-8 h-8" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3">
+          <div className="bg-blue-50 p-2.5 rounded-lg text-blue-600 shrink-0">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Pacientes Activos</p>
-            <p className="text-2xl font-bold text-slate-900">{patientCount}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="bg-green-50 p-3 rounded-lg text-green-600">
-            <Calendar className="w-8 h-8" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Citas de Hoy</p>
-            <p className="text-2xl font-bold text-slate-900">{appointmentsToday}</p>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-slate-500 truncate">Pacientes Activos</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900">{patientCount}</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="bg-amber-50 p-3 rounded-lg text-amber-600">
-            <AlertCircle className="w-8 h-8" />
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3">
+          <div className="bg-green-50 p-2.5 rounded-lg text-green-600 shrink-0">
+            <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Alertas de Inactividad</p>
-            <p className="text-2xl font-bold text-slate-900">{inactivePatients.length}</p>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-slate-500 truncate">Citas de Hoy</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900">{appointmentsToday}</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="bg-red-50 p-3 rounded-lg text-red-600">
-            <AlertCircle className="w-8 h-8" />
+
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3">
+          <div className="bg-amber-50 p-2.5 rounded-lg text-amber-600 shrink-0">
+            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500">Alertas Clínicas (Dolor)</p>
-            <p className="text-2xl font-bold text-slate-900">{highPainPatients.length}</p>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-slate-500 truncate">Inactividad</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900">{inactivePatients.length}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3">
+          <div className="bg-red-50 p-2.5 rounded-lg text-red-600 shrink-0">
+            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-slate-500 truncate">Dolor Alto</p>
+            <p className="text-xl sm:text-2xl font-bold text-slate-900">{highPainPatients.length}</p>
           </div>
         </div>
       </div>

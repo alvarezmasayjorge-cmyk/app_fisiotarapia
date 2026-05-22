@@ -1,0 +1,94 @@
+import { z } from 'zod';
+import { NextResponse } from 'next/server';
+
+export const messageSchema = z.object({
+  receiverId: z.string().min(1, 'Destinatario requerido'),
+  content: z.string().trim().min(1, 'El mensaje no puede estar vacío').max(2000, 'Mensaje demasiado largo'),
+});
+
+export const exerciseLogSchema = z.object({
+  planExerciseId: z.string().min(1),
+  completed: z.boolean(),
+});
+
+export const progressLogSchema = z.object({
+  patientId: z.string().min(1),
+  percentage: z.number().int().min(0).max(100),
+  painLevel: z.number().int().min(1).max(10).nullable().optional(),
+  patientNotes: z.string().max(1000).nullable().optional(),
+});
+
+export const appointmentSchema = z.object({
+  patientId: z.string().min(1),
+  date: z.string().datetime(),
+  mode: z.enum(['PRESENTIAL', 'VIDEO']),
+  status: z.enum(['SCHEDULED', 'COMPLETED', 'CANCELLED']).optional(),
+});
+
+export const patientCreateSchema = z.object({
+  name: z.string().trim().min(2, 'Nombre demasiado corto'),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  diagnosis: z.string().trim().min(2, 'Diagnóstico requerido'),
+  notes: z.string().max(2000).optional().nullable(),
+});
+
+export const exerciseCreateSchema = z.object({
+  name: z.string().trim().min(2),
+  description: z.string().trim().min(1),
+  sets: z.number().int().positive().nullable().optional(),
+  reps: z.number().int().positive().nullable().optional(),
+  duration: z.string().nullable().optional(),
+  frequency: z.string().nullable().optional(),
+  imageUrl: z.string().url().nullable().optional().or(z.literal('')),
+  videoUrl: z.string().url().nullable().optional().or(z.literal('')),
+  tags: z.string().nullable().optional(),
+  isHomeOnly: z.boolean().optional(),
+});
+
+export const treatmentPlanSchema = z.object({
+  patientId: z.string().min(1),
+  exerciseIds: z.array(z.string()).default([]),
+  restrictions: z.array(z.object({
+    description: z.string().trim().min(1),
+    severity: z.enum(['WARNING', 'IMPORTANT', 'CRITICAL']),
+  })).default([]),
+  nutrition: z.array(z.object({
+    type: z.enum(['DIET_RECOMMENDED', 'DIET_AVOID', 'SUPPLEMENT']),
+    description: z.string().trim().min(1),
+    time: z.string().nullable().optional(),
+    dose: z.string().nullable().optional(),
+  })).default([]),
+});
+
+export function validationErrorResponse(error: z.ZodError) {
+  return NextResponse.json(
+    {
+      error: 'Datos inválidos',
+      details: error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      })),
+    },
+    { status: 400 },
+  );
+}
+
+export async function parseBody<T extends z.ZodTypeAny>(
+  req: Request,
+  schema: T,
+): Promise<{ success: true; data: z.infer<T> } | { success: false; response: NextResponse }> {
+  try {
+    const body = await req.json();
+    const result = schema.safeParse(body);
+    if (!result.success) {
+      return { success: false, response: validationErrorResponse(result.error) };
+    }
+    return { success: true, data: result.data };
+  } catch {
+    return {
+      success: false,
+      response: NextResponse.json({ error: 'JSON inválido' }, { status: 400 }),
+    };
+  }
+}

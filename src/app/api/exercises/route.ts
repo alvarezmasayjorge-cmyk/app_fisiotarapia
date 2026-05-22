@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+import { parseBody } from '@/lib/validation';
+
+const createSchema = z.object({
+  name: z.string().trim().min(2, 'Nombre demasiado corto'),
+  description: z.string().trim().min(1, 'Descripción requerida'),
+  sets: z.union([z.number().int().positive(), z.string()]).optional().nullable(),
+  reps: z.union([z.number().int().positive(), z.string()]).optional().nullable(),
+  duration: z.string().nullable().optional(),
+  frequency: z.string().nullable().optional(),
+  tags: z.string().nullable().optional(),
+  isHomeOnly: z.boolean().optional(),
+  imageUrl: z.string().nullable().optional(),
+  videoUrl: z.string().nullable().optional(),
+});
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -9,25 +24,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { name, description, sets, reps, duration, frequency, tags, isHomeOnly, imageUrl, videoUrl } = body;
-
-  if (!name || !description) {
-    return NextResponse.json({ error: 'Nombre y descripción son obligatorios' }, { status: 400 });
-  }
+  const parsed = await parseBody(req, createSchema);
+  if (!parsed.success) return parsed.response;
+  const d = parsed.data;
 
   const exercise = await prisma.exercise.create({
     data: {
-      name,
-      description,
-      sets: sets ? parseInt(sets) : null,
-      reps: reps ? parseInt(reps) : null,
-      duration: duration || null,
-      frequency: frequency || null,
-      tags: tags || null,
-      isHomeOnly: isHomeOnly ?? true,
-      imageUrl: imageUrl || null,
-      videoUrl: videoUrl || null,
+      name: d.name,
+      description: d.description,
+      sets: d.sets ? Number(d.sets) : null,
+      reps: d.reps ? Number(d.reps) : null,
+      duration: d.duration || null,
+      frequency: d.frequency || null,
+      tags: d.tags || null,
+      isHomeOnly: d.isHomeOnly ?? true,
+      imageUrl: d.imageUrl || null,
+      videoUrl: d.videoUrl || null,
     },
   });
 

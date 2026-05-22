@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+import { parseBody } from '@/lib/validation';
+
+const painUpdateSchema = z.object({
+  painLevel: z.number().int().min(1).max(10),
+  patientNotes: z.string().max(1000).nullable().optional(),
+});
 
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -9,8 +16,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { painLevel, patientNotes } = body;
+  const parsed = await parseBody(req, painUpdateSchema);
+  if (!parsed.success) return parsed.response;
+  const { painLevel, patientNotes } = parsed.data;
 
   const today = new Date().toISOString().split('T')[0];
 

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { patientCreateSchema, parseBody } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -10,14 +11,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { name, email, password, diagnosis, notes } = body;
+  const parsed = await parseBody(req, patientCreateSchema);
+  if (!parsed.success) return parsed.response;
+  const { name, email, password, diagnosis, notes } = parsed.data;
 
-  if (!name || !email || !password || !diagnosis) {
-    return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
-  }
-
-  // Check if user already exists
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json({ error: 'Ya existe un usuario con ese correo' }, { status: 409 });

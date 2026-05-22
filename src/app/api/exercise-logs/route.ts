@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+import { parseBody } from '@/lib/validation';
+
+const toggleSchema = z.object({
+  planExerciseId: z.string().min(1, 'ID requerido'),
+});
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -9,12 +15,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { planExerciseId } = body;
-
-  if (!planExerciseId) {
-    return NextResponse.json({ error: 'ID de ejercicio requerido' }, { status: 400 });
-  }
+  const parsed = await parseBody(req, toggleSchema);
+  if (!parsed.success) return parsed.response;
+  const { planExerciseId } = parsed.data;
 
   // Check if already completed today
   const today = new Date();
