@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  password       String
+  role           String    @default("PATIENT") // ADMIN o PATIENT
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  patientProfile PatientProfile?
+  
+  // As Physio
+  physioPlans        TreatmentPlan[] @relation("PhysioPlans")
+  physioAppointments Appointment[]   @relation("PhysioAppointments")
+  
+  // As Patient (for simple login handling)
+  patientAppointments Appointment[]  @relation("PatientAppointments")
+  
+  // Messages
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+}
+
+model PatientProfile {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  diagnosis      String
+  startDate      DateTime  @default(now())
+  notes          String?
+  isActive       Boolean   @default(true)
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  
+  treatmentPlans TreatmentPlan[]
+  progressLogs   ProgressLog[]
+}
+
+model Exercise {
+  id             String    @id @default(cuid())
+  name           String
+  description    String
+  sets           Int?
+  reps           Int?
+  duration       String?   // e.g. "30s"
+  frequency      String?   // e.g. "3 veces por semana"
+  imageUrl       String?
+  videoUrl       String?
+  tags           String?   // comma-separated, e.g. "cervical,lumbar"
+  isHomeOnly     Boolean   @default(true)
+  
+  planExercises  PlanExercise[]
+}
+
+model TreatmentPlan {
+  id             String    @id @default(cuid())
+  patientId      String
+  patient        PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  physioId       String
+  physio         User      @relation("PhysioPlans", fields: [physioId], references: [id])
+  
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  
+  exercises      PlanExercise[]
+  restrictions   Restriction[]
+  nutrition      NutritionSupplement[]
+}
+
+model PlanExercise {
+  id             String    @id @default(cuid())
+  planId         String
+  plan           TreatmentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  exerciseId     String
+  exercise       Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  
+  completedLogs  ExerciseLog[]
+}
+
+model Restriction {
+  id             String    @id @default(cuid())
+  planId         String
+  plan           TreatmentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  description    String
+  severity       String    @default("WARNING") // WARNING, IMPORTANT, CRITICAL
+}
+
+model NutritionSupplement {
+  id             String    @id @default(cuid())
+  planId         String
+  plan           TreatmentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  type           String    // 'DIET_RECOMMENDED', 'DIET_AVOID', 'SUPPLEMENT'
+  description    String
+  time           String?   // '08:00', 'Después de cenar'
+  dose           String?
+}
+
+model Appointment {
+  id             String    @id @default(cuid())
+  physioId       String
+  physio         User      @relation("PhysioAppointments", fields: [physioId], references: [id])
+  patientId      String
+  patient        User      @relation("PatientAppointments", fields: [patientId], references: [id])
+  
+  date           DateTime
+  mode           String    @default("PRESENTIAL") // PRESENTIAL o VIDEO
+  status         String    @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+}
+
+model ProgressLog {
+  id             String    @id @default(cuid())
+  patientId      String
+  patient        PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  date           DateTime  @default(now())
+  percentage     Int       @default(0)
+  painLevel      Int?      // 1 to 10
+  patientNotes   String?
+  physioNotes    String?
+}
+
+model ExerciseLog {
+  id             String    @id @default(cuid())
+  planExerciseId String
+  planExercise   PlanExercise @relation(fields: [planExerciseId], references: [id], onDelete: Cascade)
+  date           DateTime  @default(now())
+  completed      Boolean   @default(true)
+}
+
+model Message {
+  id             String    @id @default(cuid())
+  senderId       String
+  receiverId     String
+  content        String
+  createdAt      DateTime  @default(now())
+  read           Boolean   @default(false)
+  
+  sender         User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiver       User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
