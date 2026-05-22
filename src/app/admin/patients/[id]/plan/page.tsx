@@ -140,7 +140,7 @@ export default function EditPlanPage() {
           {loading ? (
             <p className="text-sm text-slate-400">Cargando ejercicios...</p>
           ) : allExercises.length === 0 ? (
-            <p className="text-sm text-slate-400">No hay ejercicios en la biblioteca. <Link href="/admin/exercises" className="text-teal-600 hover:underline">Crea uno primero</Link>.</p>
+            <p className="text-sm text-slate-400">No hay ejercicios en la biblioteca. <Link href="/admin/exercises" className="text-amber-500 hover:underline">Crea uno primero</Link>.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {allExercises.map(ex => (
@@ -148,7 +148,7 @@ export default function EditPlanPage() {
                   key={ex.id}
                   className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                     selectedExerciseIds.includes(ex.id)
-                      ? 'border-teal-500 bg-teal-50'
+                      ? 'border-amber-500 bg-amber-50'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
@@ -156,7 +156,7 @@ export default function EditPlanPage() {
                     type="checkbox"
                     checked={selectedExerciseIds.includes(ex.id)}
                     onChange={() => toggleExercise(ex.id)}
-                    className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                    className="rounded border-slate-300 text-amber-500 focus:ring-amber-500"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800 truncate">{ex.name}</p>
@@ -174,7 +174,7 @@ export default function EditPlanPage() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-semibold text-slate-900">Restricciones</h2>
-            <button type="button" onClick={addRestriction} className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium">
+            <button type="button" onClick={addRestriction} className="inline-flex items-center gap-1 text-sm text-amber-500 hover:text-amber-600 font-medium">
               <Plus className="w-4 h-4" /> Agregar
             </button>
           </div>
@@ -189,12 +189,12 @@ export default function EditPlanPage() {
                     placeholder="Ej: No saltar ni correr"
                     value={r.description}
                     onChange={e => updateRestriction(i, 'description', e.target.value)}
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                   />
                   <select
                     value={r.severity}
                     onChange={e => updateRestriction(i, 'severity', e.target.value)}
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                   >
                     <option value="WARNING">Precaución</option>
                     <option value="IMPORTANT">Importante</option>
@@ -213,7 +213,7 @@ export default function EditPlanPage() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-semibold text-slate-900">Nutrición / Suplementos</h2>
-            <button type="button" onClick={addNutrition} className="inline-flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium">
+            <button type="button" onClick={addNutrition} className="inline-flex items-center gap-1 text-sm text-amber-500 hover:text-amber-600 font-medium">
               <Plus className="w-4 h-4" /> Agregar
             </button>
           </div>
@@ -227,7 +227,7 @@ export default function EditPlanPage() {
                     <select
                       value={n.type}
                       onChange={e => updateNutrition(i, 'type', e.target.value)}
-                      className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                      className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                     >
                       <option value="SUPPLEMENT">Suplemento</option>
                       <option value="DIET_RECOMMENDED">Dieta Recomendada</option>
@@ -242,7 +242,7 @@ export default function EditPlanPage() {
                     placeholder="Descripción (ej: Colágeno Hidrolizado)"
                     value={n.description}
                     onChange={e => updateNutrition(i, 'description', e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                   />
                   <div className="flex gap-2">
                     <input
@@ -250,14 +250,14 @@ export default function EditPlanPage() {
                       placeholder="Dosis (ej: 1 cacito)"
                       value={n.dose}
                       onChange={e => updateNutrition(i, 'dose', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                     />
                     <input
                       type="text"
                       placeholder="Horario (ej: Con el desayuno)"
                       value={n.time}
                       onChange={e => updateNutrition(i, 'time', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"
+                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                     />
                   </div>
                 </div>
@@ -269,7 +269,7 @@ export default function EditPlanPage() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full inline-flex justify-center items-center gap-2 bg-teal-600 text-white px-4 py-3 rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:opacity-50"
+          className="w-full inline-flex justify-center items-center gap-2 bg-amber-500 text-white px-4 py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium disabled:opacity-50"
         >
           <Save className="w-5 h-5" />
           {saving ? 'Guardando...' : 'Guardar Plan de Tratamiento'}

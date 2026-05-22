@@ -72,7 +72,7 @@ export default function NewPatientPage() {
             value={form.name}
             onChange={e => setForm({ ...form, name: e.target.value })}
             placeholder="Ej: María García López"
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-slate-900"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
           />
         </div>
 
@@ -84,7 +84,7 @@ export default function NewPatientPage() {
             value={form.email}
             onChange={e => setForm({ ...form, email: e.target.value })}
             placeholder="paciente@email.com"
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-slate-900"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
           />
         </div>
 
@@ -98,7 +98,7 @@ export default function NewPatientPage() {
               onChange={e => setForm({ ...form, password: e.target.value })}
               placeholder="Mínimo 6 caracteres"
               minLength={6}
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent pr-10 text-slate-900"
+              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent pr-10 text-slate-900"
             />
             <button
               type="button"
@@ -119,7 +119,7 @@ export default function NewPatientPage() {
             value={form.diagnosis}
             onChange={e => setForm({ ...form, diagnosis: e.target.value })}
             placeholder="Ej: Hernia discal L4-L5"
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-slate-900"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
           />
         </div>
 
@@ -130,7 +130,7 @@ export default function NewPatientPage() {
             onChange={e => setForm({ ...form, notes: e.target.value })}
             placeholder="Observaciones iniciales, antecedentes, objetivos..."
             rows={3}
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none text-slate-900"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-slate-900"
           />
         </div>
 
@@ -138,7 +138,7 @@ export default function NewPatientPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 inline-flex justify-center items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm disabled:opacity-50"
+            className="flex-1 inline-flex justify-center items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm disabled:opacity-50"
           >
             <UserPlus className="w-4 h-4" />
             {loading ? 'Creando...' : 'Crear Paciente'}

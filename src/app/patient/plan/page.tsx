@@ -43,7 +43,7 @@ export default async function PatientPlanPage() {
       {/* Diagnóstico y Educación */}
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
         <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-          <Stethoscope className="w-5 h-5 text-teal-600" /> Diagnóstico
+          <Stethoscope className="w-5 h-5 text-amber-500" /> Diagnóstico
         </h2>
         <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
           <p className="font-medium text-slate-900">{profile.diagnosis}</p>

@@ -138,7 +138,7 @@ export default function PatientDashboardClient({
           <div className="relative w-24 h-24 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               <path className="text-slate-100" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path className="text-teal-500 transition-all duration-1000 ease-out" strokeWidth="3" strokeDasharray={`${progressPercentage}, 100`} strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="text-amber-500 transition-all duration-1000 ease-out" strokeWidth="3" strokeDasharray={`${progressPercentage}, 100`} strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
             </svg>
             <span className="absolute text-2xl font-bold text-slate-800">{progressPercentage}%</span>
           </div>
@@ -240,7 +240,7 @@ export default function PatientDashboardClient({
                     <p className="text-sm text-slate-500 mt-1">{pe.exercise.sets} series x {pe.exercise.reps} reps</p>
                   </div>
                   <button onClick={() => toggleComplete(pe.id)} disabled={isLoading} className={`shrink-0 p-2 transition-transform active:scale-95 ${isLoading ? 'opacity-50 cursor-wait' : ''}`}>
-                    {isCompleted ? <CheckCircle2 className="w-8 h-8 text-green-500" /> : <Circle className="w-8 h-8 text-slate-300 hover:text-teal-500" />}
+                    {isCompleted ? <CheckCircle2 className="w-8 h-8 text-green-500" /> : <Circle className="w-8 h-8 text-slate-300 hover:text-amber-500" />}
                   </button>
                 </div>
               </div>
@@ -253,7 +253,7 @@ export default function PatientDashboardClient({
       {chartData.length > 0 && (
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
           <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-teal-600" /> Mi Evolución
+            <TrendingUp className="w-5 h-5 text-amber-500" /> Mi Evolución
           </h2>
           <div className="pt-2">
             <ProgressChart data={chartData} />
@@ -302,14 +302,14 @@ export default function PatientDashboardClient({
                 type="range" min="1" max="10" 
                 value={painLevel} 
                 onChange={(e) => setPainLevel(parseInt(e.target.value))}
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
               />
             </div>
 
             <button 
               onClick={handlePainSubmit}
               disabled={painSubmitting}
-              className="w-full bg-teal-600 text-white font-medium py-3 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-50"
+              className="w-full bg-amber-500 text-white font-medium py-3 rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50"
             >
               {painSubmitting ? 'Guardando...' : 'Guardar y Continuar'}
             </button>

@@ -36,12 +36,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row pb-20 lg:pb-0">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-teal-800 text-white h-screen sticky top-0">
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-amber-700 text-white h-screen sticky top-0">
         <div className="p-6">
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Activity className="w-6 h-6" /> FisioApp
+            <Activity className="w-6 h-6" /> Sentirse Única
           </h2>
-          <p className="text-teal-200 text-sm mt-1">{session.user.name}</p>
+          <p className="text-amber-200 text-sm mt-1">{session.user.name}</p>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 mt-4">
@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={item.name}
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  active ? 'bg-teal-700 text-white' : 'text-teal-100 hover:bg-teal-700/50'
+                  active ? 'bg-amber-600 text-white' : 'text-amber-100 hover:bg-amber-600/50'
                 }`}
               >
                 <item.icon className="w-5 h-5" />
@@ -62,10 +62,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-4 border-t border-teal-700">
+        <div className="p-4 border-t border-amber-600">
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex items-center gap-3 px-4 py-3 w-full text-left text-teal-100 hover:bg-teal-700 hover:text-white rounded-lg transition-colors"
+            className="flex items-center gap-3 px-4 py-3 w-full text-left text-amber-100 hover:bg-amber-600 hover:text-white rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
             Cerrar Sesión
@@ -78,11 +78,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Mobile Header */}
         <header className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
               <Activity className="w-5 h-5 text-white" />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-bold text-slate-900">FisioApp</p>
+              <p className="text-sm font-bold text-slate-900">Sentirse Única</p>
               <p className="text-[10px] text-slate-500 truncate max-w-[160px]">{session.user.name}</p>
             </div>
           </div>
@@ -113,10 +113,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="flex flex-col items-center p-2 w-16"
               aria-current={active ? 'page' : undefined}
             >
-              <div className={`p-1.5 rounded-full transition-colors ${active ? 'bg-teal-100' : ''}`}>
-                <item.icon className={`w-6 h-6 ${active ? 'text-teal-700' : 'text-slate-400'}`} />
+              <div className={`p-1.5 rounded-full transition-colors ${active ? 'bg-amber-100' : ''}`}>
+                <item.icon className={`w-6 h-6 ${active ? 'text-amber-600' : 'text-slate-400'}`} />
               </div>
-              <span className={`text-[10px] font-medium mt-1 ${active ? 'text-teal-700' : 'text-slate-500'}`}>
+              <span className={`text-[10px] font-medium mt-1 ${active ? 'text-amber-600' : 'text-slate-500'}`}>
                 {item.name}
               </span>
             </Link>

@@ -25,7 +25,7 @@ export default async function PatientsPage() {
         </div>
         <Link
           href="/admin/patients/new"
-          className="inline-flex items-center justify-center gap-2 bg-teal-600 text-white px-4 h-11 rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm shadow-sm w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-2 bg-amber-500 text-white px-4 h-11 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm w-full sm:w-auto"
         >
           <UserPlus className="w-4 h-4" />
           Nuevo Paciente
@@ -38,7 +38,7 @@ export default async function PatientsPage() {
           <p className="text-slate-500">No hay pacientes registrados aún.</p>
           <Link
             href="/admin/patients/new"
-            className="mt-4 inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 text-sm font-medium"
+            className="mt-4 inline-flex items-center gap-2 text-amber-500 hover:text-amber-600 text-sm font-medium"
           >
             <UserPlus className="w-4 h-4" />
             Crear primero
@@ -120,7 +120,7 @@ export default async function PatientsPage() {
                       <td className="px-6 py-4 text-right">
                         <Link
                           href={`/admin/patients/${p.id}`}
-                          className="text-teal-600 hover:text-teal-800 text-sm font-medium hover:underline"
+                          className="text-amber-500 hover:text-amber-700 text-sm font-medium hover:underline"
                         >
                           Ver detalle
                         </Link>

@@ -14,7 +14,7 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses: Record<Variant, string> = {
-  primary: 'bg-teal-600 hover:bg-teal-700 text-white disabled:bg-slate-300',
+  primary: 'bg-amber-500 hover:bg-amber-600 text-white disabled:bg-slate-300',
   secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-900 disabled:opacity-50',
   outline: 'border border-slate-300 hover:bg-slate-50 text-slate-700 disabled:opacity-50',
   ghost: 'hover:bg-slate-100 text-slate-700 disabled:opacity-50',
@@ -44,7 +44,7 @@ export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
     <button
       ref={ref}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed ${
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed ${
         variantClasses[variant]
       } ${sizeClasses[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
       {...props}

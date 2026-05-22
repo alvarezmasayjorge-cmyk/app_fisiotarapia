@@ -66,7 +66,7 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm shadow-sm"
+          className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm"
         >
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {showForm ? 'Cancelar' : 'Nuevo Ejercicio'}
@@ -80,54 +80,54 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Nombre *</label>
               <input type="text" required value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-                placeholder="Ej: Elevación de pierna" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                placeholder="Ej: Elevación de pierna" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Tags</label>
               <input type="text" value={form.tags} onChange={e => setForm({...form, tags: e.target.value})}
-                placeholder="rodilla,pierna,fuerza" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                placeholder="rodilla,pierna,fuerza" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Descripción *</label>
             <textarea required value={form.description} onChange={e => setForm({...form, description: e.target.value})}
               placeholder="Instrucciones detalladas del ejercicio..." rows={3}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none text-slate-900" />
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none text-slate-900" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Series</label>
               <input type="number" value={form.sets} onChange={e => setForm({...form, sets: e.target.value})}
-                placeholder="3" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                placeholder="3" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Repeticiones</label>
               <input type="number" value={form.reps} onChange={e => setForm({...form, reps: e.target.value})}
-                placeholder="15" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                placeholder="15" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Duración</label>
               <input type="text" value={form.duration} onChange={e => setForm({...form, duration: e.target.value})}
-                placeholder="30s" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                placeholder="30s" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Enlace de YouTube</label>
               <input type="url" value={form.videoUrl} onChange={e => setForm({...form, videoUrl: e.target.value})}
-                placeholder="https://youtube.com/watch?v=..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                placeholder="https://youtube.com/watch?v=..." className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Frecuencia</label>
               <input type="text" value={form.frequency} onChange={e => setForm({...form, frequency: e.target.value})}
-                placeholder="Diario" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                placeholder="Diario" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" id="homeOnly" checked={form.isHomeOnly} onChange={e => setForm({...form, isHomeOnly: e.target.checked})}
-              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500" />
+              className="rounded border-slate-300 text-amber-500 focus:ring-amber-500" />
             <label htmlFor="homeOnly" className="text-sm text-slate-700">Solo para hacer en casa</label>
           </div>
           <button type="submit" disabled={saving}
-            className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm disabled:opacity-50">
+            className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm disabled:opacity-50">
             <Plus className="w-4 h-4" /> {saving ? 'Guardando...' : 'Crear Ejercicio'}
           </button>
         </form>
@@ -148,7 +148,7 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
                 <Trash2 className="w-4 h-4" />
               </button>
               <div className="flex items-start gap-3">
-                <div className="w-14 h-14 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 relative overflow-hidden">
+                <div className="w-14 h-14 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 relative overflow-hidden">
                   {ex.imageUrl ? (
                     <Image
                       src={ex.imageUrl}
@@ -158,7 +158,7 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
                       className="object-cover"
                     />
                   ) : (
-                    <Dumbbell className="w-6 h-6 text-teal-600" />
+                    <Dumbbell className="w-6 h-6 text-amber-500" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -175,7 +175,7 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
               {ex.tags && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {ex.tags.split(',').map(tag => (
-                    <span key={tag} className="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full">{tag.trim()}</span>
+                    <span key={tag} className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">{tag.trim()}</span>
                   ))}
                 </div>
               )}

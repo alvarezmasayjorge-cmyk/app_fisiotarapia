@@ -81,7 +81,7 @@ export default function CalendarClient({ appointments, patients }: { appointment
           <p className="text-slate-500 mt-1">Gestiona tus citas con pacientes</p>
         </div>
         <button onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm shadow-sm">
+          className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm">
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {showForm ? 'Cancelar' : 'Nueva Cita'}
         </button>
@@ -94,7 +94,7 @@ export default function CalendarClient({ appointments, patients }: { appointment
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Paciente *</label>
               <select required value={form.patientUserId} onChange={e => setForm({...form, patientUserId: e.target.value})}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900">
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900">
                 <option value="">Seleccionar paciente...</option>
                 {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
@@ -102,7 +102,7 @@ export default function CalendarClient({ appointments, patients }: { appointment
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Modalidad</label>
               <select value={form.mode} onChange={e => setForm({...form, mode: e.target.value})}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900">
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900">
                 <option value="PRESENTIAL">Presencial</option>
                 <option value="VIDEO">Videollamada</option>
               </select>
@@ -112,16 +112,16 @@ export default function CalendarClient({ appointments, patients }: { appointment
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Fecha *</label>
               <input type="date" required value={form.date} onChange={e => setForm({...form, date: e.target.value})}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Hora *</label>
               <input type="time" required value={form.time} onChange={e => setForm({...form, time: e.target.value})}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900" />
             </div>
           </div>
           <button type="submit" disabled={saving}
-            className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm disabled:opacity-50">
+            className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm disabled:opacity-50">
             <Plus className="w-4 h-4" /> {saving ? 'Creando...' : 'Crear Cita'}
           </button>
         </form>
@@ -139,8 +139,8 @@ export default function CalendarClient({ appointments, patients }: { appointment
           <div className="space-y-3">
             {upcoming.map(apt => (
               <div key={apt.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-                <div className="bg-teal-50 p-3 rounded-xl">
-                  <Calendar className="w-6 h-6 text-teal-600" />
+                <div className="bg-amber-50 p-3 rounded-xl">
+                  <Calendar className="w-6 h-6 text-amber-500" />
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900">{apt.patient.name}</p>

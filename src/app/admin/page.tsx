@@ -142,7 +142,7 @@ export default async function AdminDashboard() {
                   <p className="font-medium text-slate-900">{p.user.name}</p>
                   <p className="text-sm text-slate-500">{p.diagnosis}</p>
                 </div>
-                <Link href={`/admin/patients/${p.id}`} className="text-teal-600 text-sm font-medium hover:underline">
+                <Link href={`/admin/patients/${p.id}`} className="text-amber-500 text-sm font-medium hover:underline">
                   Ver perfil
                 </Link>
               </div>

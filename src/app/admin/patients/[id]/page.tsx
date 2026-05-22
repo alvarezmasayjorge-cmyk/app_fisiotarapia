@@ -61,7 +61,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         </div>
         <Link
           href={`/admin/patients/${id}/plan`}
-          className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-lg hover:bg-teal-700 transition-colors font-medium text-sm shadow-sm"
+          className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm"
         >
           {plan ? 'Editar Plan' : 'Crear Plan'}
         </Link>
@@ -120,7 +120,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           {/* Exercises */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
             <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-teal-600" /> Ejercicios ({plan.exercises.length})
+              <Activity className="w-4 h-4 text-amber-500" /> Ejercicios ({plan.exercises.length})
             </h3>
             <div className="space-y-2">
               {plan.exercises.map(pe => (
@@ -173,7 +173,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
       ) : (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
           <p className="text-amber-800 font-medium">Este paciente no tiene un plan de tratamiento activo.</p>
-          <Link href={`/admin/patients/${id}/plan`} className="text-teal-600 font-medium text-sm hover:underline mt-2 inline-block">
+          <Link href={`/admin/patients/${id}/plan`} className="text-amber-500 font-medium text-sm hover:underline mt-2 inline-block">
             Crear plan ahora →
           </Link>
         </div>

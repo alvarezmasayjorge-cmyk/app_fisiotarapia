@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FisioApp - Plataforma de Rehabilitación",
+  title: "Sentirse Única - Plataforma de Rehabilitación",
   description: "Plataforma de seguimiento de tratamientos de fisioterapia para pacientes y profesionales.",
 };
 
@@ -24,7 +24,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#0f766e",
+  themeColor: "#f59e0b",
 };
 
 export default function RootLayout({
