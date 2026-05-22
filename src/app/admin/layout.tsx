@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { Users, Activity, Calendar, LogOut, LayoutDashboard } from 'lucide-react';
 import NotificationStatus from '@/components/NotificationStatus';
+import BrandedLoader from '@/components/BrandedLoader';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -14,7 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-sm text-slate-500 animate-pulse">Cargando...</p>
+        <BrandedLoader size="md" label="Cargando..." />
       </div>
     );
   }

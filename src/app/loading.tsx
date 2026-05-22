@@ -1,10 +1,9 @@
-import { SkeletonList } from '@/components/ui/Skeleton';
+import BrandedLoader from '@/components/BrandedLoader';
 
 export default function Loading() {
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-4">
-      <div className="h-8 w-48 animate-pulse bg-slate-200 rounded" />
-      <SkeletonList count={3} />
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <BrandedLoader size="lg" label="Cargando..." />
     </div>
   );
 }
