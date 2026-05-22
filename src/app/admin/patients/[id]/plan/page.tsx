@@ -63,9 +63,9 @@ export default function EditPlanPage() {
     setRestrictions(restrictions.filter((_, idx) => idx !== i));
   };
 
-  const updateRestriction = (i: number, field: string, value: string) => {
+  const updateRestriction = (i: number, field: keyof Restriction, value: string) => {
     const updated = [...restrictions];
-    (updated[i] as Record<string, string>)[field] = value;
+    updated[i] = { ...updated[i], [field]: value };
     setRestrictions(updated);
   };
 
@@ -77,9 +77,9 @@ export default function EditPlanPage() {
     setNutrition(nutrition.filter((_, idx) => idx !== i));
   };
 
-  const updateNutrition = (i: number, field: string, value: string) => {
+  const updateNutrition = (i: number, field: keyof Nutrition, value: string) => {
     const updated = [...nutrition];
-    (updated[i] as Record<string, string>)[field] = value;
+    updated[i] = { ...updated[i], [field]: value };
     setNutrition(updated);
   };
 

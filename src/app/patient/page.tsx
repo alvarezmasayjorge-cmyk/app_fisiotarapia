@@ -29,7 +29,8 @@ export default async function PatientDashboard() {
           },
           restrictions: {
             where: { severity: 'CRITICAL' }
-          }
+          },
+          nutrition: true
         }
       },
       progressLogs: {
