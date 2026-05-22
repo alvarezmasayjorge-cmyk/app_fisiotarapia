@@ -1,52 +1,154 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-export function usePushNotifications() {
+export type PushStatus =
+  | 'unsupported'        // Navegador no soporta Push API
+  | 'ios_needs_install'  // iOS Safari sin instalar como PWA
+  | 'default'            // Aún no se ha pedido permiso
+  | 'denied'             // Usuario bloqueó las notificaciones
+  | 'granted_no_sub'     // Permiso dado pero falló la suscripción
+  | 'subscribed'         // ✅ Todo funcionando
+  | 'loading';
+
+interface PushState {
+  status: PushStatus;
+  error?: string;
+  enable: () => Promise<void>;
+}
+
+function isIOS() {
+  if (typeof navigator === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+}
+
+function isStandalone() {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as any).standalone === true
+  );
+}
+
+export function usePushNotifications(): PushState {
+  const [status, setStatus] = useState<PushStatus>('loading');
+  const [error, setError] = useState<string>();
+
+  const subscribe = useCallback(async (): Promise<PushStatus> => {
+    try {
+      // Soporte básico
+      if (typeof window === 'undefined') return 'loading';
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        return 'unsupported';
+      }
+
+      // iOS necesita PWA instalada
+      if (isIOS() && !isStandalone()) {
+        return 'ios_needs_install';
+      }
+
+      // Registrar service worker y esperar a que esté listo
+      await navigator.serviceWorker.register('/sw.js');
+      const registration = await navigator.serviceWorker.ready;
+
+      // ¿Ya está suscrito?
+      const existing = await registration.pushManager.getSubscription();
+      if (existing) {
+        await syncSubscription(existing);
+        return 'subscribed';
+      }
+
+      // Pedir permiso
+      const permission = await Notification.requestPermission();
+      if (permission === 'denied') return 'denied';
+      if (permission !== 'granted') return 'default';
+
+      // Suscribir
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        setError('Falta NEXT_PUBLIC_VAPID_PUBLIC_KEY en el servidor');
+        return 'granted_no_sub';
+      }
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey),
+      });
+
+      const synced = await syncSubscription(subscription);
+      return synced ? 'subscribed' : 'granted_no_sub';
+    } catch (e: any) {
+      setError(e?.message || 'Error desconocido');
+      return 'granted_no_sub';
+    }
+  }, []);
+
+  // Estado inicial al montar (sin pedir permiso)
   useEffect(() => {
-    // Solo en browser y si soporta service workers
-    if (typeof window === 'undefined') return;
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    (async () => {
+      if (typeof window === 'undefined') return;
 
-    // Registrar service worker
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then(async (registration) => {
-        // Si ya hay suscripción activa, no pedir de nuevo
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        setStatus('unsupported');
+        return;
+      }
+
+      if (isIOS() && !isStandalone()) {
+        setStatus('ios_needs_install');
+        return;
+      }
+
+      try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
+
         const existing = await registration.pushManager.getSubscription();
         if (existing) {
-          // Re-sincronizar con el servidor por si acaso
           await syncSubscription(existing);
+          setStatus('subscribed');
           return;
         }
 
-        // Pedir permiso (solo si es la primera vez)
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') return;
+        const perm = Notification.permission;
+        if (perm === 'denied') setStatus('denied');
+        else if (perm === 'granted') {
+          // Permiso dado pero sin suscripción → reintentar
+          const result = await subscribe();
+          setStatus(result);
+        } else {
+          setStatus('default');
+        }
+      } catch (e: any) {
+        setError(e?.message);
+        setStatus('default');
+      }
+    })();
+  }, [subscribe]);
 
-        // Suscribir al usuario
-        const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapidKey),
-        });
+  const enable = useCallback(async () => {
+    setStatus('loading');
+    const result = await subscribe();
+    setStatus(result);
+  }, [subscribe]);
 
-        await syncSubscription(subscription);
-      })
-      .catch(console.error);
-  }, []);
+  return { status, error, enable };
 }
 
-async function syncSubscription(subscription: PushSubscription) {
+async function syncSubscription(subscription: PushSubscription): Promise<boolean> {
   const json = subscription.toJSON();
-  await fetch('/api/push/subscribe', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      endpoint: json.endpoint,
-      keys: { p256dh: json.keys?.p256dh, auth: json.keys?.auth },
-    }),
-  });
+  try {
+    const res = await fetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        endpoint: json.endpoint,
+        keys: { p256dh: json.keys?.p256dh, auth: json.keys?.auth },
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function urlBase64ToUint8Array(base64String: string) {

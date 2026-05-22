@@ -52,19 +52,22 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Link href="/admin/patients" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-600" />
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-900">{profile.user.name}</h1>
-          <p className="text-slate-500 text-sm">{profile.user.email} · {profile.diagnosis}</p>
+      <div className="space-y-3">
+        <div className="flex items-start gap-2">
+          <Link href="/admin/patients" className="p-2 hover:bg-slate-100 rounded-lg transition-colors shrink-0">
+            <ArrowLeft className="w-5 h-5 text-slate-600" />
+          </Link>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">{profile.user.name}</h1>
+            <p className="text-slate-500 text-xs sm:text-sm truncate">{profile.user.email}</p>
+            <p className="text-slate-600 text-xs sm:text-sm mt-0.5 line-clamp-2">{profile.diagnosis}</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ReminderButton patientUserId={profile.userId} patientName={profile.user.name} />
           <Link
             href={`/admin/patients/${id}/plan`}
-            className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm"
+            className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm"
           >
             {plan ? 'Editar Plan' : 'Crear Plan'}
           </Link>

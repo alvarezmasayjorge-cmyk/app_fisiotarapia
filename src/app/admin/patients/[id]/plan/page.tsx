@@ -183,26 +183,28 @@ export default function EditPlanPage() {
           ) : (
             <div className="space-y-3">
               {restrictions.map((r, i) => (
-                <div key={i} className="flex gap-2 items-start">
-                  <input
-                    type="text"
-                    placeholder="Ej: No saltar ni correr"
-                    value={r.description}
-                    onChange={e => updateRestriction(i, 'description', e.target.value)}
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
-                  />
+                <div key={i} className="p-3 bg-slate-50 rounded-lg space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Ej: No saltar ni correr"
+                      value={r.description}
+                      onChange={e => updateRestriction(i, 'description', e.target.value)}
+                      className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
+                    />
+                    <button type="button" onClick={() => removeRestriction(i)} className="p-2 text-red-400 hover:text-red-600 shrink-0">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                   <select
                     value={r.severity}
                     onChange={e => updateRestriction(i, 'severity', e.target.value)}
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 bg-white"
                   >
                     <option value="WARNING">Precaución</option>
                     <option value="IMPORTANT">Importante</option>
                     <option value="CRITICAL">Crítico</option>
                   </select>
-                  <button type="button" onClick={() => removeRestriction(i)} className="p-2 text-red-400 hover:text-red-600">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
                 </div>
               ))}
             </div>
@@ -227,13 +229,13 @@ export default function EditPlanPage() {
                     <select
                       value={n.type}
                       onChange={e => updateNutrition(i, 'type', e.target.value)}
-                      className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
+                      className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 bg-white"
                     >
                       <option value="SUPPLEMENT">Suplemento</option>
                       <option value="DIET_RECOMMENDED">Dieta Recomendada</option>
                       <option value="DIET_AVOID">Evitar</option>
                     </select>
-                    <button type="button" onClick={() => removeNutrition(i)} className="p-2 text-red-400 hover:text-red-600 ml-auto">
+                    <button type="button" onClick={() => removeNutrition(i)} className="p-2 text-red-400 hover:text-red-600 shrink-0">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -244,20 +246,20 @@ export default function EditPlanPage() {
                     onChange={e => updateNutrition(i, 'description', e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                   />
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Dosis (ej: 1 cacito)"
                       value={n.dose}
                       onChange={e => updateNutrition(i, 'dose', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
+                      className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                     />
                     <input
                       type="text"
                       placeholder="Horario (ej: Con el desayuno)"
                       value={n.time}
                       onChange={e => updateNutrition(i, 'time', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
+                      className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
                     />
                   </div>
                 </div>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { Users, Activity, Calendar, LogOut, LayoutDashboard } from 'lucide-react';
+import NotificationStatus from '@/components/NotificationStatus';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -90,7 +91,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-4">
+          <NotificationStatus />
+          {children}
+        </main>
       </div>
 
       {/* Mobile Bottom Navigation */}

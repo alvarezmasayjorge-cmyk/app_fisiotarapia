@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, MessageCircle, Calendar, FileText, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
+import NotificationStatus from '@/components/NotificationStatus';
 
 export default function PatientLayout({
   children,
@@ -13,7 +13,6 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  usePushNotifications();
 
   const navItems = [
     { name: 'Inicio', href: '/patient', icon: Home },
@@ -73,7 +72,12 @@ export default function PatientLayout({
             <LogOut className="w-5 h-5" />
           </button>
         </div>
-        
+
+        {/* Notification status banner */}
+        <div className="mb-4">
+          <NotificationStatus />
+        </div>
+
         {children}
       </main>
 
