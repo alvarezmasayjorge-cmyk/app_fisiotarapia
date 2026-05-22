@@ -87,7 +87,7 @@ export default function ChatClient({
   if (loading) return <div className="p-4 text-center text-slate-500 animate-pulse">Cargando mensajes...</div>;
 
   return (
-    <div className="flex flex-col h-[500px] bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+    <div className="flex flex-col h-96 md:h-[500px] bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
       {/* Header */}
       <div className="bg-slate-50 border-b border-slate-100 p-4 flex items-center gap-3">
         <div className="w-10 h-10 bg-teal-100 text-teal-700 flex items-center justify-center rounded-full shrink-0">

@@ -66,5 +66,5 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  secret: process.env.NEXTAUTH_SECRET || "fisioapp-super-secret-fallback-key-987654321-abcde",
+  secret: process.env.NEXTAUTH_SECRET,
 };

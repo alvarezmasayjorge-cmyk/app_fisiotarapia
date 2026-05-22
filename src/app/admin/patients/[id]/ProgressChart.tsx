@@ -18,7 +18,7 @@ export default function ProgressChart({ data }: { data: ChartData[] }) {
   })).reverse(); // Reverse to show oldest to newest left to right
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-48 md:h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={formattedData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />

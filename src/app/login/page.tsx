@@ -72,7 +72,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-black"
+                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-slate-900"
                 />
               </div>
             </div>
@@ -87,7 +87,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-black"
+                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-slate-900"
                 />
               </div>
             </div>
@@ -102,10 +102,12 @@ export default function LoginPage() {
               </button>
             </div>
             
-            <div className="mt-4 text-center text-xs text-slate-500">
-              <p>Demo Admin: dr.mendoza@fisio.app / admin123</p>
-              <p>Demo Paciente: rodilla@paciente.app / paciente123</p>
-            </div>
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-4 text-center text-xs text-slate-500">
+                <p>Demo Admin: dr.mendoza@fisio.app / admin123</p>
+                <p>Demo Paciente: rodilla@paciente.app / paciente123</p>
+              </div>
+            )}
           </form>
         </div>
       </div>
