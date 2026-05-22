@@ -86,12 +86,13 @@ export default function PatientLayout({
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link 
-              key={item.name} 
+            <Link
+              key={item.name}
               href={item.href}
-              className="flex flex-col items-center p-2 w-16"
+              prefetch
+              className="flex flex-col items-center p-2 w-16 active:scale-90 transition-transform duration-100"
             >
-              <div className={`p-1.5 rounded-full transition-colors ${isActive ? 'bg-amber-100' : ''}`}>
+              <div className={`p-1.5 rounded-full transition-colors ${isActive ? 'bg-amber-100' : 'active:bg-slate-100'}`}>
                 <item.icon className={`w-6 h-6 ${isActive ? 'text-amber-600' : 'text-slate-400'}`} />
               </div>
               <span className={`text-[10px] font-medium mt-1 ${isActive ? 'text-amber-600' : 'text-slate-500'}`}>

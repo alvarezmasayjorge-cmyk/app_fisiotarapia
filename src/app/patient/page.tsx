@@ -8,46 +8,41 @@ export default async function PatientDashboard() {
   
   if (!session || session.user.role !== 'PATIENT') return null;
 
-  const profile = await prisma.patientProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      treatmentPlans: {
-        where: { isActive: true },
-        include: {
-          exercises: {
-            include: {
-              exercise: true,
-              completedLogs: {
-                where: {
-                  date: {
-                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
-                    lt: new Date(new Date().setHours(24, 0, 0, 0))
-                  }
-                }
-              }
-            }
-          },
-          restrictions: {
-            where: { severity: 'CRITICAL' }
-          },
-          nutrition: true
-        }
-      },
-      progressLogs: {
-        orderBy: { date: 'desc' },
-        take: 7,
-      }
-    }
-  });
+  // Queries en paralelo para reducir latencia total
+  const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
+  const todayEnd = new Date(new Date().setHours(24, 0, 0, 0));
 
-  const nextAppointment = await prisma.appointment.findFirst({
-    where: { 
-      patientId: session.user.id,
-      date: { gte: new Date() },
-      status: 'SCHEDULED'
-    },
-    orderBy: { date: 'asc' }
-  });
+  const [profile, nextAppointment] = await Promise.all([
+    prisma.patientProfile.findUnique({
+      where: { userId: session.user.id },
+      include: {
+        treatmentPlans: {
+          where: { isActive: true },
+          include: {
+            exercises: {
+              include: {
+                exercise: true,
+                completedLogs: {
+                  where: { date: { gte: todayStart, lt: todayEnd } },
+                },
+              },
+            },
+            restrictions: { where: { severity: 'CRITICAL' } },
+            nutrition: true,
+          },
+        },
+        progressLogs: { orderBy: { date: 'desc' }, take: 7 },
+      },
+    }),
+    prisma.appointment.findFirst({
+      where: {
+        patientId: session.user.id,
+        date: { gte: new Date() },
+        status: 'SCHEDULED',
+      },
+      orderBy: { date: 'asc' },
+    }),
+  ]);
 
   if (!profile || profile.treatmentPlans.length === 0) {
     return (
@@ -73,8 +68,6 @@ export default async function PatientDashboard() {
     }
   }));
 
-  const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
-  const todayEnd = new Date(new Date().setHours(24, 0, 0, 0));
   const todayLog = profile.progressLogs.find(l => l.date >= todayStart && l.date < todayEnd);
   const painLevelRecorded = !!todayLog?.painLevel;
 

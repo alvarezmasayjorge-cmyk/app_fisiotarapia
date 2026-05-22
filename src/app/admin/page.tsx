@@ -9,35 +9,27 @@ export default async function AdminDashboard() {
   
   if (!session || session.user.role !== 'ADMIN') return null;
 
-  // Obtener estadísticas
-  const patientCount = await prisma.patientProfile.count({
-    where: { isActive: true }
-  });
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const appointmentsToday = await prisma.appointment.count({
-    where: {
-      physioId: session.user.id,
-      date: {
-        gte: today,
-        lt: tomorrow
-      }
-    }
-  });
-
-  const allPatients = await prisma.patientProfile.findMany({
-    include: {
-      user: true,
-      progressLogs: {
-        orderBy: { date: 'desc' },
-        take: 3
-      }
-    }
-  });
+  // Las 3 queries corren en paralelo, no secuencial (corta latencia ~3x)
+  const [patientCount, appointmentsToday, allPatients] = await Promise.all([
+    prisma.patientProfile.count({ where: { isActive: true } }),
+    prisma.appointment.count({
+      where: {
+        physioId: session.user.id,
+        date: { gte: today, lt: tomorrow },
+      },
+    }),
+    prisma.patientProfile.findMany({
+      include: {
+        user: true,
+        progressLogs: { orderBy: { date: 'desc' }, take: 3 },
+      },
+    }),
+  ]);
 
   // Alerta si el paciente no ha registrado en más de 3 días
   const threeDaysAgo = new Date();

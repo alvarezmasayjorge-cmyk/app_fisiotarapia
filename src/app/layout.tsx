@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import NavigationProgress from "@/components/NavigationProgress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
     >
       <body className="text-slate-900 bg-slate-50 min-h-full">
         <Providers>
+          <NavigationProgress />
           {children}
         </Providers>
       </body>

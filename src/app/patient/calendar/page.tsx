@@ -8,24 +8,20 @@ export default async function PatientCalendarPage() {
   
   if (!session || session.user.role !== 'PATIENT') return null;
 
-  const upcomingAppointments = await prisma.appointment.findMany({
-    where: { 
-      patientId: session.user.id,
-      date: { gte: new Date() }
-    },
-    orderBy: { date: 'asc' },
-    include: { physio: true }
-  });
-
-  const pastAppointments = await prisma.appointment.findMany({
-    where: { 
-      patientId: session.user.id,
-      date: { lt: new Date() }
-    },
-    orderBy: { date: 'desc' },
-    take: 5,
-    include: { physio: true }
-  });
+  const now = new Date();
+  const [upcomingAppointments, pastAppointments] = await Promise.all([
+    prisma.appointment.findMany({
+      where: { patientId: session.user.id, date: { gte: now } },
+      orderBy: { date: 'asc' },
+      include: { physio: true },
+    }),
+    prisma.appointment.findMany({
+      where: { patientId: session.user.id, date: { lt: now } },
+      orderBy: { date: 'desc' },
+      take: 5,
+      include: { physio: true },
+    }),
+  ]);
 
   return (
     <div className="space-y-6 pb-4">

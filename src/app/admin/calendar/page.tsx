@@ -7,16 +7,17 @@ export default async function CalendarPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'ADMIN') return null;
 
-  const appointments = await prisma.appointment.findMany({
-    where: { physioId: session.user.id },
-    include: { patient: true },
-    orderBy: { date: 'asc' },
-  });
-
-  const patients = await prisma.user.findMany({
-    where: { role: 'PATIENT' },
-    select: { id: true, name: true },
-  });
+  const [appointments, patients] = await Promise.all([
+    prisma.appointment.findMany({
+      where: { physioId: session.user.id },
+      include: { patient: true },
+      orderBy: { date: 'asc' },
+    }),
+    prisma.user.findMany({
+      where: { role: 'PATIENT' },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   const serialized = appointments.map(a => ({
     ...a,

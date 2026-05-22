@@ -14,6 +14,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
   const { id } = await params;
 
+  // Primero obtenemos el profile para conocer su userId, luego las citas en paralelo
   const profile = await prisma.patientProfile.findUnique({
     where: { id },
     include: {
@@ -26,10 +27,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           nutrition: true,
         },
       },
-      progressLogs: {
-        orderBy: { date: 'desc' },
-        take: 14, // Tomar más días para la gráfica
-      },
+      progressLogs: { orderBy: { date: 'desc' }, take: 14 },
     },
   });
 
