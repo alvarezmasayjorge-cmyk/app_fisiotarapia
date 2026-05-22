@@ -3,125 +3,126 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import { Users, Activity, Calendar, LogOut, LayoutDashboard, Menu, X } from 'lucide-react';
+import { Users, Activity, Calendar, LogOut, LayoutDashboard } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (status === 'loading') return <div>Cargando...</div>;
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-sm text-slate-500 animate-pulse">Cargando...</p>
+      </div>
+    );
+  }
   if (status === 'unauthenticated' || session?.user?.role !== 'ADMIN') {
-    return <div>Acceso denegado</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-sm text-slate-600">Acceso denegado</p>
+      </div>
+    );
   }
 
   const navItems = [
-    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Inicio', href: '/admin', icon: LayoutDashboard },
     { name: 'Pacientes', href: '/admin/patients', icon: Users },
     { name: 'Ejercicios', href: '/admin/exercises', icon: Activity },
     { name: 'Agenda', href: '/admin/calendar', icon: Calendar },
   ];
 
-  const sidebarContent = (
-    <>
-      <div className="p-6">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <Activity className="w-6 h-6" /> FisioApp
-        </h2>
-        <p className="text-teal-200 text-sm mt-1">{session.user.name}</p>
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row pb-20 lg:pb-0">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-teal-800 text-white h-screen sticky top-0">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Activity className="w-6 h-6" /> FisioApp
+          </h2>
+          <p className="text-teal-200 text-sm mt-1">{session.user.name}</p>
+        </div>
+
+        <nav className="flex-1 px-4 space-y-2 mt-4">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  active ? 'bg-teal-700 text-white' : 'text-teal-100 hover:bg-teal-700/50'
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                {item.name}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-teal-700">
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="flex items-center gap-3 px-4 py-3 w-full text-left text-teal-100 hover:bg-teal-700 hover:text-white rounded-lg transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            Cerrar Sesión
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Column */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Header */}
+        <header className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+              <Activity className="w-5 h-5 text-white" />
+            </div>
+            <div className="leading-tight">
+              <p className="text-sm font-bold text-slate-900">FisioApp</p>
+              <p className="text-[10px] text-slate-500 truncate max-w-[160px]">{session.user.name}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="p-2 text-slate-400 hover:bg-slate-100 hover:text-red-600 rounded-lg transition-colors"
+            aria-label="Cerrar sesión"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2 mt-4">
+      {/* Mobile Bottom Navigation */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-2 pb-safe shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] z-50"
+        aria-label="Navegación principal"
+      >
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const active = isActive(item.href);
           return (
             <Link
               key={item.name}
               href={item.href}
-              onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive ? 'bg-teal-700 text-white' : 'text-teal-100 hover:bg-teal-700/50'
-              }`}
+              className="flex flex-col items-center p-2 w-16"
+              aria-current={active ? 'page' : undefined}
             >
-              <item.icon className="w-5 h-5" />
-              {item.name}
+              <div className={`p-1.5 rounded-full transition-colors ${active ? 'bg-teal-100' : ''}`}>
+                <item.icon className={`w-6 h-6 ${active ? 'text-teal-700' : 'text-slate-400'}`} />
+              </div>
+              <span className={`text-[10px] font-medium mt-1 ${active ? 'text-teal-700' : 'text-slate-500'}`}>
+                {item.name}
+              </span>
             </Link>
           );
         })}
       </nav>
-
-      <div className="p-4 border-t border-teal-700">
-        <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          className="flex items-center gap-3 px-4 py-3 w-full text-left text-teal-100 hover:bg-teal-700 hover:text-white rounded-lg transition-colors"
-        >
-          <LogOut className="w-5 h-5" />
-          Cerrar Sesión
-        </button>
-      </div>
-    </>
-  );
-
-  return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50">
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-teal-800 text-white p-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-2">
-          <Activity className="w-6 h-6" />
-          <span className="font-bold">FisioApp</span>
-        </div>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 hover:bg-teal-700 rounded-lg transition-colors"
-          aria-label="Toggle menu"
-        >
-          {sidebarOpen ? (
-            <X className="w-6 h-6" />
-          ) : (
-            <Menu className="w-6 h-6" />
-          )}
-        </button>
-      </div>
-
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <div
-        className={`fixed lg:relative left-0 top-0 h-full w-64 bg-teal-800 text-white flex flex-col transition-transform duration-300 z-40 lg:z-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
-      >
-        {/* Mobile Close Button */}
-        <div className="lg:hidden flex justify-end p-4">
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="p-2 hover:bg-teal-700 rounded-lg transition-colors"
-            aria-label="Close menu"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Sidebar Content */}
-        <div className="hidden lg:flex lg:flex-col lg:flex-1">
-          {sidebarContent}
-        </div>
-        <div className="lg:hidden flex flex-col flex-1">
-          {sidebarContent}
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
-        {children}
-      </div>
     </div>
   );
 }
