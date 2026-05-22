@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Activity } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,16 +41,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="bg-amber-500 p-3 rounded-full">
-            <Activity className="w-8 h-8 text-white" />
-          </div>
+          <Image src="/logo.png" alt="Sentirse Única" width={180} height={80} className="object-contain" priority />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
-          Sentirse Única
-        </h2>
-        <p className="mt-2 text-center text-sm text-slate-600">
-          Tu plataforma de recuperación
-        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

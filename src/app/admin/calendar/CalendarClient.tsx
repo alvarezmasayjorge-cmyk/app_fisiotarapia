@@ -138,27 +138,29 @@ export default function CalendarClient({ appointments, patients }: { appointment
         ) : (
           <div className="space-y-3">
             {upcoming.map(apt => (
-              <div key={apt.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-                <div className="bg-amber-50 p-3 rounded-xl">
-                  <Calendar className="w-6 h-6 text-amber-500" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-900">{apt.patient.name}</p>
-                  <p className="text-sm text-slate-500 capitalize">{formatDate(apt.date)}</p>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="flex items-center gap-1 text-slate-600">
-                    <Clock className="w-4 h-4" /> {formatTime(apt.date)}
-                  </span>
-                  <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${apt.mode === 'VIDEO' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                    {apt.mode === 'VIDEO' ? <><Video className="w-3 h-3" /> Video</> : <><MapPin className="w-3 h-3" /> Presencial</>}
-                  </span>
-                  {apt.status === 'SCHEDULED' && (
-                    <div className="flex gap-1">
-                      <button onClick={() => handleComplete(apt.id)} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors">Completar</button>
-                      <button onClick={() => handleCancel(apt.id)} className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition-colors">Cancelar</button>
+              <div key={apt.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3">
+                  <div className="bg-amber-50 p-2.5 rounded-xl shrink-0">
+                    <Calendar className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-slate-900 truncate">{apt.patient.name}</p>
+                    <p className="text-sm text-slate-500 capitalize mt-0.5">{formatDate(apt.date)}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <span className="flex items-center gap-1 text-slate-600 text-xs">
+                        <Clock className="w-3.5 h-3.5" /> {formatTime(apt.date)}
+                      </span>
+                      <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${apt.mode === 'VIDEO' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                        {apt.mode === 'VIDEO' ? <><Video className="w-3 h-3" /> Video</> : <><MapPin className="w-3 h-3" /> Presencial</>}
+                      </span>
+                      {apt.status === 'SCHEDULED' && (
+                        <>
+                          <button onClick={() => handleComplete(apt.id)} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors">Completar</button>
+                          <button onClick={() => handleCancel(apt.id)} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition-colors">Cancelar</button>
+                        </>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}

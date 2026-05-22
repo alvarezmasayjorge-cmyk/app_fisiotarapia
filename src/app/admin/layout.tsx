@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { Users, Activity, Calendar, LogOut, LayoutDashboard } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -38,10 +39,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col lg:w-64 bg-amber-700 text-white h-screen sticky top-0">
         <div className="p-6">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Activity className="w-6 h-6" /> Sentirse Única
-          </h2>
-          <p className="text-amber-200 text-sm mt-1">{session.user.name}</p>
+          <Image src="/logo.png" alt="Sentirse Única" width={160} height={60} className="object-contain brightness-0 invert" priority />
+          <p className="text-amber-200 text-sm mt-2">{session.user.name}</p>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 mt-4">
@@ -78,13 +77,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Mobile Header */}
         <header className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
-            <div className="leading-tight">
-              <p className="text-sm font-bold text-slate-900">Sentirse Única</p>
-              <p className="text-[10px] text-slate-500 truncate max-w-[160px]">{session.user.name}</p>
-            </div>
+            <Image src="/logo.png" alt="Sentirse Única" width={120} height={40} className="object-contain" priority />
+            <p className="text-[10px] text-slate-500 truncate max-w-[120px]">{session.user.name}</p>
           </div>
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
