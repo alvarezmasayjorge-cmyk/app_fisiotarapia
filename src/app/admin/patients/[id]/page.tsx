@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import ProgressChart from './LazyProgressChart';
 import ChatClient from '@/components/ChatClient';
 import ReminderButton from './ReminderButton';
+import AISummaryButton from './AISummaryButton';
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -116,6 +117,8 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
               <ProgressChart data={chartData} />
             </div>
           )}
+          
+          <AISummaryButton patientId={profile.id} />
         </div>
       </div>
 

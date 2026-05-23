@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, AlertTriangle } from 'lucide-react';
+import { Send, AlertTriangle, Sparkles, Bot } from 'lucide-react';
 import { chatService } from '@/lib/services';
 import { useChatStream } from '@/hooks/useChatStream';
 import { useAsyncOperation } from '@/hooks/useAsyncOperation';
@@ -86,6 +86,7 @@ export default function ChatClient({ currentUserId, otherUserId, otherUserName }
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
+  const [isAiThinking, setIsAiThinking] = useState(false);
 
   const { messages, status, addOptimistic, replaceOptimistic, removeOptimistic } =
     useChatStream(otherUserId);
@@ -132,6 +133,40 @@ export default function ChatClient({ currentUserId, otherUserId, otherUserName }
       removeOptimistic(tempId);
       toast.error(sendOperation.error || 'No se pudo enviar el mensaje');
       setContent(text);
+    }
+  };
+
+  const handleAskAI = async () => {
+    const text = content.trim();
+    if (!text || isAiThinking) return;
+
+    // We send the user message normally first
+    await handleSend({ preventDefault: () => {} } as React.FormEvent);
+
+    setIsAiThinking(true);
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: text }),
+      });
+      if (!res.ok) throw new Error('AI Error');
+      const data = await res.json();
+      
+      // Inject AI response optimistically into the chat (locally for the demo)
+      const aiMsgId = `ai-${Date.now()}`;
+      addOptimistic({
+        id: aiMsgId,
+        senderId: 'ai-assistant', // Virtual sender
+        receiverId: currentUserId,
+        content: data.content,
+        createdAt: new Date().toISOString(),
+        read: true,
+      });
+    } catch (e) {
+      toast.error('El asistente no está disponible en este momento');
+    } finally {
+      setIsAiThinking(false);
     }
   };
 
@@ -196,6 +231,7 @@ export default function ChatClient({ currentUserId, otherUserId, otherUserName }
 
               const { msg, showAvatar, showTime } = item;
               const isMe = msg.senderId === currentUserId;
+              const isAi = msg.senderId === 'ai-assistant';
               const isPending = msg.id.startsWith('temp-');
 
               return (
@@ -213,9 +249,12 @@ export default function ChatClient({ currentUserId, otherUserId, otherUserName }
                       className={`px-4 py-2 text-sm break-words shadow-sm leading-snug ${
                         isMe
                           ? `bg-amber-500 text-white ${showAvatar ? 'rounded-2xl rounded-br-md' : 'rounded-2xl rounded-r-md'}`
+                          : isAi
+                          ? `bg-indigo-50 border border-indigo-100 text-indigo-900 ${showAvatar ? 'rounded-2xl rounded-bl-md' : 'rounded-2xl rounded-l-md'}`
                           : `bg-white border border-slate-200 text-slate-800 ${showAvatar ? 'rounded-2xl rounded-bl-md' : 'rounded-2xl rounded-l-md'}`
                       } ${isPending ? 'opacity-70' : ''}`}
                     >
+                      {isAi && <div className="flex items-center gap-1.5 mb-1 text-xs font-bold text-indigo-600"><Bot className="w-3.5 h-3.5" /> Asistente IA</div>}
                       {msg.content}
                     </div>
                     {showTime && (
@@ -229,6 +268,14 @@ export default function ChatClient({ currentUserId, otherUserId, otherUserName }
             })}
           </AnimatePresence>
         )}
+        {isAiThinking && (
+          <div className="flex justify-start mt-2">
+            <div className="bg-indigo-50 border border-indigo-100 text-indigo-600 px-4 py-2 text-sm rounded-2xl rounded-bl-md shadow-sm flex items-center gap-2">
+              <Bot className="w-4 h-4 animate-pulse" />
+              <span className="animate-pulse">La IA está escribiendo...</span>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -240,14 +287,24 @@ export default function ChatClient({ currentUserId, otherUserId, otherUserName }
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Escribe un mensaje..."
-          disabled={sendOperation.loading}
+          disabled={sendOperation.loading || isAiThinking}
           className="flex-1 bg-slate-100 border border-transparent rounded-full px-4 h-11 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white focus:border-amber-200 text-slate-800 disabled:opacity-50 transition-colors"
         />
         <motion.button
+          type="button"
+          onClick={handleAskAI}
+          whileTap={{ scale: 0.92 }}
+          disabled={!content.trim() || sendOperation.loading || isAiThinking}
+          title="Consultar a la IA"
+          className="w-11 h-11 bg-indigo-100 hover:bg-indigo-200 disabled:bg-slate-100 disabled:text-slate-300 text-indigo-600 flex items-center justify-center rounded-full shrink-0 transition-colors shadow-sm"
+        >
+          <Sparkles className="w-5 h-5" />
+        </motion.button>
+        <motion.button
           type="submit"
           whileTap={{ scale: 0.92 }}
-          disabled={!content.trim() || sendOperation.loading}
-          aria-label="Enviar mensaje"
+          disabled={!content.trim() || sendOperation.loading || isAiThinking}
+          title="Enviar a doctora"
           className="w-11 h-11 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-200 disabled:text-slate-400 text-white flex items-center justify-center rounded-full shrink-0 transition-colors shadow-sm"
         >
           <Send className="w-4 h-4 ml-0.5" />

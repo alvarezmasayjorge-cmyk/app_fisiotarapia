@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Plus, Trash2, Save } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface Exercise {
@@ -32,6 +32,7 @@ export default function EditPlanPage() {
   
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState('');
   const [allExercises, setAllExercises] = useState<Exercise[]>([]);
   const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([]);
@@ -115,16 +116,54 @@ export default function EditPlanPage() {
     }
   };
 
+  const handleAIAutocomplete = async () => {
+    setAiLoading(true);
+    try {
+      const res = await fetch('/api/ai/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ diagnosis: 'Lesión general' }),
+      });
+      const data = await res.json();
+      if (data.exercises) {
+        // Find matching exercises in DB
+        const ids = data.exercises.map((e: any) => e.id);
+        setSelectedExerciseIds(ids);
+      }
+      if (data.restrictions) {
+        setRestrictions([{ description: data.restrictions, severity: 'IMPORTANT' }]);
+      }
+      if (data.nutrition) {
+        setNutrition([{ type: 'DIET_RECOMMENDED', description: data.nutrition, dose: '', time: '' }]);
+      }
+    } catch {
+      setError('Error al generar plan con IA');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href={`/admin/patients/${patientId}`} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-          <ArrowLeft className="w-5 h-5 text-slate-600" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Plan de Tratamiento</h1>
-          <p className="text-slate-500 text-sm">Asigna ejercicios, restricciones y nutrición</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <Link href={`/admin/patients/${patientId}`} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-600" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Plan de Tratamiento</h1>
+            <p className="text-slate-500 text-sm">Asigna ejercicios, restricciones y nutrición</p>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={handleAIAutocomplete}
+          disabled={aiLoading}
+          className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-lg hover:bg-indigo-100 transition-colors font-medium text-sm disabled:opacity-50"
+        >
+          {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+          Autocompletar con IA
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
