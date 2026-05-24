@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Pill, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Pill, Trash2, ToggleLeft, ToggleRight, Pencil, RotateCcw } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 
 type Medication = {
@@ -16,6 +16,8 @@ type Medication = {
 };
 
 const FREQ_OPTIONS = [
+  { label: 'Cada 1 hora', value: 1 },
+  { label: 'Cada 2 horas', value: 2 },
   { label: 'Cada 4 horas', value: 4 },
   { label: 'Cada 6 horas', value: 6 },
   { label: 'Cada 8 horas', value: 8 },
@@ -28,6 +30,22 @@ function freqLabel(h: number) {
   return FREQ_OPTIONS.find(o => o.value === h)?.label ?? `Cada ${h}h`;
 }
 
+function toLocalInput(iso: string) {
+  // Convertir ISO a "YYYY-MM-DDTHH:mm" en hora local
+  const d = new Date(iso);
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+}
+
+type FormState = {
+  name: string;
+  dose: string;
+  frequencyHours: number;
+  startAt: string;
+  endAt: string;
+  notes: string;
+};
+
 export default function MedicationsAdmin({
   patientId,
   initial,
@@ -36,47 +54,74 @@ export default function MedicationsAdmin({
   initial: Medication[];
 }) {
   const [meds, setMeds] = useState<Medication[]>(initial);
-  const [addOpen, setAddOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null); // null = no modal, '' = add, 'id' = edit
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const now = new Date().toISOString().slice(0, 16); // datetime-local format
-  const [form, setForm] = useState({
-    name: '',
-    dose: '',
-    frequencyHours: 8,
-    startAt: now,
-    endAt: '',
-    notes: '',
+  const blankForm = (): FormState => ({
+    name: '', dose: '', frequencyHours: 8,
+    startAt: toLocalInput(new Date().toISOString()),
+    endAt: '', notes: '',
   });
+  const [form, setForm] = useState<FormState>(blankForm());
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const openAdd = () => {
+    setEditingId('');
+    setForm(blankForm());
+    setError('');
+  };
+
+  const openEdit = (med: Medication) => {
+    setEditingId(med.id);
+    setForm({
+      name: med.name,
+      dose: med.dose,
+      frequencyHours: med.frequencyHours,
+      startAt: toLocalInput(med.startAt),
+      endAt: med.endAt ? toLocalInput(med.endAt) : '',
+      notes: med.notes ?? '',
+    });
+    setError('');
+  };
+
+  const closeModal = () => {
+    setEditingId(null);
+    setError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSaving(true);
     try {
-      const res = await fetch('/api/medications', {
-        method: 'POST',
+      const body = {
+        ...(editingId === '' ? { patientId } : {}),
+        name: form.name,
+        dose: form.dose,
+        frequencyHours: form.frequencyHours,
+        startAt: new Date(form.startAt).toISOString(),
+        endAt: form.endAt ? new Date(form.endAt).toISOString() : null,
+        notes: form.notes || null,
+      };
+      const url = editingId === '' ? '/api/medications' : `/api/medications/${editingId}`;
+      const method = editingId === '' ? 'POST' : 'PATCH';
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patientId,
-          name: form.name,
-          dose: form.dose,
-          frequencyHours: form.frequencyHours,
-          startAt: new Date(form.startAt).toISOString(),
-          endAt: form.endAt ? new Date(form.endAt).toISOString() : null,
-          notes: form.notes || null,
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
         setError(d.error || 'Error al guardar');
         return;
       }
-      const med = await res.json();
-      setMeds(prev => [med, ...prev]);
-      setAddOpen(false);
-      setForm({ name: '', dose: '', frequencyHours: 8, startAt: now, endAt: '', notes: '' });
+      const updated = await res.json();
+      if (editingId === '') {
+        setMeds(prev => [updated, ...prev]);
+      } else {
+        setMeds(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated } : m));
+      }
+      closeModal();
     } catch {
       setError('Error de conexión');
     } finally {
@@ -95,6 +140,19 @@ export default function MedicationsAdmin({
     }
   };
 
+  const restartFromNow = async (med: Medication) => {
+    if (!confirm(`¿Reiniciar "${med.name}" desde ahora? La próxima dosis se calculará desde este momento.`)) return;
+    const nowIso = new Date().toISOString();
+    const res = await fetch(`/api/medications/${med.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ startAt: nowIso }),
+    });
+    if (res.ok) {
+      setMeds(prev => prev.map(m => m.id === med.id ? { ...m, startAt: nowIso } : m));
+    }
+  };
+
   const deleteMed = async (id: string) => {
     const res = await fetch(`/api/medications/${id}`, { method: 'DELETE' });
     if (res.ok) setMeds(prev => prev.filter(m => m.id !== id));
@@ -110,7 +168,7 @@ export default function MedicationsAdmin({
           <Pill className="w-4 h-4 text-blue-500" /> Medicamentos
         </h3>
         <button
-          onClick={() => setAddOpen(true)}
+          onClick={openAdd}
           className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" /> Agregar
@@ -122,21 +180,40 @@ export default function MedicationsAdmin({
       ) : (
         <div className="space-y-2">
           {active.map(med => (
-            <MedRow key={med.id} med={med} onToggle={toggleActive} onDelete={deleteMed} />
+            <MedRow
+              key={med.id}
+              med={med}
+              onToggle={toggleActive}
+              onEdit={openEdit}
+              onRestart={restartFromNow}
+              onDelete={deleteMed}
+            />
           ))}
           {inactive.length > 0 && (
             <>
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider pt-2">Inactivos</p>
               {inactive.map(med => (
-                <MedRow key={med.id} med={med} onToggle={toggleActive} onDelete={deleteMed} />
+                <MedRow
+                  key={med.id}
+                  med={med}
+                  onToggle={toggleActive}
+                  onEdit={openEdit}
+                  onRestart={restartFromNow}
+                  onDelete={deleteMed}
+                />
               ))}
             </>
           )}
         </div>
       )}
 
-      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Agregar medicamento" size="md">
-        <form onSubmit={handleAdd} className="space-y-4">
+      <Modal
+        open={editingId !== null}
+        onClose={closeModal}
+        title={editingId === '' ? 'Agregar medicamento' : 'Editar medicamento'}
+        size="md"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-r-lg text-sm text-red-700">{error}</div>
           )}
@@ -210,9 +287,9 @@ export default function MedicationsAdmin({
               disabled={saving}
               className="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50"
             >
-              {saving ? 'Guardando...' : 'Agregar medicamento'}
+              {saving ? 'Guardando...' : (editingId === '' ? 'Agregar medicamento' : 'Guardar cambios')}
             </button>
-            <button type="button" onClick={() => setAddOpen(false)} className="px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+            <button type="button" onClick={closeModal} className="px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
               Cancelar
             </button>
           </div>
@@ -225,10 +302,14 @@ export default function MedicationsAdmin({
 function MedRow({
   med,
   onToggle,
+  onEdit,
+  onRestart,
   onDelete,
 }: {
   med: Medication;
   onToggle: (m: Medication) => void;
+  onEdit: (m: Medication) => void;
+  onRestart: (m: Medication) => void;
   onDelete: (id: string) => void;
 }) {
   const start = new Date(med.startAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -240,12 +321,20 @@ function MedRow({
         <p className="text-xs text-slate-500">{freqLabel(med.frequencyHours)} · desde {start}</p>
         {med.notes && <p className="text-xs text-slate-400 mt-0.5">{med.notes}</p>}
       </div>
+      <button onClick={() => onEdit(med)} className="p-1.5 rounded-lg hover:bg-white text-slate-500 hover:text-blue-600 transition-colors" title="Editar">
+        <Pencil className="w-4 h-4" />
+      </button>
+      {med.isActive && (
+        <button onClick={() => onRestart(med)} className="p-1.5 rounded-lg hover:bg-white text-slate-500 hover:text-amber-600 transition-colors" title="Reiniciar desde ahora">
+          <RotateCcw className="w-4 h-4" />
+        </button>
+      )}
       <button onClick={() => onToggle(med)} className="p-1.5 rounded-lg hover:bg-white transition-colors" title={med.isActive ? 'Pausar' : 'Reactivar'}>
         {med.isActive
           ? <ToggleRight className="w-5 h-5 text-blue-500" />
           : <ToggleLeft className="w-5 h-5 text-slate-400" />}
       </button>
-      <button onClick={() => onDelete(med.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
+      <button onClick={() => onDelete(med.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Eliminar">
         <Trash2 className="w-4 h-4" />
       </button>
     </div>

@@ -40,16 +40,17 @@ model User {
 }
 
 model PatientProfile {
-  id             String    @id @default(cuid())
-  userId         String    @unique
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                     String    @id @default(cuid())
+  userId                 String    @unique
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  diagnosis      String
-  startDate      DateTime  @default(now())
-  notes          String?
-  isActive       Boolean   @default(true)
-  currentStreak  Int       @default(0)
-  longestStreak  Int       @default(0)
+  diagnosis              String
+  startDate              DateTime  @default(now())
+  notes                  String?
+  isActive               Boolean   @default(true)
+  currentStreak          Int       @default(0)
+  longestStreak          Int       @default(0)
+  lastExerciseReminder   DateTime?
 
   treatmentPlans TreatmentPlan[]
   progressLogs   ProgressLog[]
@@ -128,10 +129,14 @@ model Appointment {
   physio         User      @relation("PhysioAppointments", fields: [physioId], references: [id])
   patientId      String
   patient        User      @relation("PatientAppointments", fields: [patientId], references: [id])
-  
+
   date           DateTime
   mode           String    @default("PRESENTIAL") // PRESENTIAL o VIDEO
   status         String    @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+  reminded24h    Boolean   @default(false)
+  reminded2h     Boolean   @default(false)
+
+  @@index([date, status])
 }
 
 model ProgressLog {
