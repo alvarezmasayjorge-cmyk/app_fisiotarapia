@@ -11,7 +11,12 @@ const EXERCISE_REMINDER_HOUR_UTC = 14; // 9am Lima
 
 export async function GET(req: NextRequest) {
   const secret = req.headers.get('authorization');
+  if (!process.env.CRON_SECRET) {
+    console.error('[cron] CRON_SECRET no está configurado en el entorno');
+    return NextResponse.json({ error: 'CRON_SECRET no configurado' }, { status: 500 });
+  }
   if (secret !== `Bearer ${process.env.CRON_SECRET}`) {
+    console.warn('[cron] 401 - header authorization no coincide con CRON_SECRET');
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
@@ -19,8 +24,12 @@ export async function GET(req: NextRequest) {
   const expiredEndpoints: string[] = [];
 
   let medsNotified = 0;
+  let medsMatched = 0;
+  let medsSkippedDedup = 0;
   let appointmentsNotified = 0;
   let exercisesNotified = 0;
+
+  console.log(`[cron] start now=${now.toISOString()} hourUTC=${now.getUTCHours()}`);
 
   // ============ 1. MEDICAMENTOS ============
   const windowEnd = new Date(now.getTime() + 60 * 60 * 1000);
@@ -36,6 +45,7 @@ export async function GET(req: NextRequest) {
   });
 
   for (const med of meds) {
+    medsMatched++;
     const doses: Date[] = [];
     const cursor = new Date(med.startAt);
     while (cursor <= windowEnd) {
@@ -54,7 +64,10 @@ export async function GET(req: NextRequest) {
           },
         },
       });
-      if (existing) continue;
+      if (existing) {
+        medsSkippedDedup++;
+        continue;
+      }
 
       const doseLog = await prisma.medicationDoseLog.create({
         data: { medicationId: med.id, scheduledAt, notifiedAt: now },
@@ -177,11 +190,21 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  console.log(
+    `[cron] meds matched=${medsMatched} skippedDedup=${medsSkippedDedup} notified=${medsNotified} | ` +
+    `appts notified=${appointmentsNotified} | exercises notified=${exercisesNotified} ` +
+    `(exerciseWindow=${now.getUTCHours() === EXERCISE_REMINDER_HOUR_UTC}) | ` +
+    `expiredSubsCleaned=${expiredEndpoints.length}`
+  );
+
   return NextResponse.json({
     ok: true,
+    medsMatched,
+    medsSkippedDedup,
     medsNotified,
     appointmentsNotified,
     exercisesNotified,
+    expiredSubsCleaned: expiredEndpoints.length,
   });
 }
 

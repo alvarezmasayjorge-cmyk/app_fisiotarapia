@@ -27,10 +27,15 @@ export async function sendPushNotification(
     );
     return { success: true };
   } catch (error: any) {
-    // Subscription expired or invalid
     if (error.statusCode === 410 || error.statusCode === 404) {
       return { success: false, expired: true };
     }
+    console.error('[webpush] sendNotification falló', {
+      statusCode: error?.statusCode,
+      body: error?.body,
+      message: error?.message,
+      endpoint: subscription.endpoint.slice(0, 60) + '...',
+    });
     return { success: false, error };
   }
 }
