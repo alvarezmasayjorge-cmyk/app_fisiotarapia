@@ -53,10 +53,12 @@ export default async function PatientDashboard() {
     );
   }
 
-  const plan = profile.treatmentPlans[0];
-  
-  // Format data for the client component
-  const initialExercises = plan.exercises.map(pe => ({
+  // Mergear ejercicios, restricciones y nutrición de TODOS los pilares activos
+  const allExercises = profile.treatmentPlans.flatMap(p => p.exercises);
+  const allRestrictions = profile.treatmentPlans.flatMap(p => p.restrictions);
+  const allNutrition = profile.treatmentPlans.flatMap(p => p.nutrition);
+
+  const initialExercises = allExercises.map(pe => ({
     id: pe.id,
     isCompleted: pe.completedLogs.length > 0,
     exercise: {
@@ -78,14 +80,14 @@ export default async function PatientDashboard() {
   }));
 
   return (
-    <PatientDashboardClient 
+    <PatientDashboardClient
       initialExercises={initialExercises}
-      restrictionsCount={plan.restrictions.length}
+      restrictionsCount={allRestrictions.length}
       currentStreak={profile.currentStreak}
       painLevelRecorded={painLevelRecorded}
       nextAppointmentDate={nextAppointment?.date.toISOString() || null}
       chartData={chartData}
-      nutritionItems={plan.nutrition}
+      nutritionItems={allNutrition}
     />
   );
 }

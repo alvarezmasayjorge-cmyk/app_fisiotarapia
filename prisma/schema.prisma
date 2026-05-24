@@ -76,13 +76,19 @@ model TreatmentPlan {
   patient        PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
   physioId       String
   physio         User      @relation("PhysioPlans", fields: [physioId], references: [id])
-  
+
+  pillar         String    @default("PAIN") // PELVIC_FLOOR | PAIN | AESTHETIC
+  diagnosis      String    @default("")     // diagnóstico libre por pilar
+  treatmentText  String    @default("")     // tratamiento abierto que escribe la doctora
+
   isActive       Boolean   @default(true)
   createdAt      DateTime  @default(now())
-  
+
   exercises      PlanExercise[]
   restrictions   Restriction[]
   nutrition      NutritionSupplement[]
+
+  @@index([patientId, pillar, isActive])
 }
 
 model PlanExercise {

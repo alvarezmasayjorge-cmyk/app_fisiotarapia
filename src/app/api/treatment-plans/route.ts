@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { parseBody, treatmentPlanSchema } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -9,36 +10,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { patientProfileId, exerciseIds, restrictions, nutrition } = body;
+  const parsed = await parseBody(req, treatmentPlanSchema);
+  if (!parsed.success) return parsed.response;
+  const { patientId, pillar, diagnosis, treatmentText, exerciseIds, restrictions, nutrition } = parsed.data;
 
-  if (!patientProfileId) {
-    return NextResponse.json({ error: 'ID del paciente requerido' }, { status: 400 });
-  }
-
-  // Deactivate existing active plans for this patient
+  // Solo desactivar planes del mismo pilar (un paciente puede tener varios pilares activos).
   await prisma.treatmentPlan.updateMany({
-    where: { patientId: patientProfileId, isActive: true },
+    where: { patientId, pillar, isActive: true },
     data: { isActive: false },
   });
 
   const plan = await prisma.treatmentPlan.create({
     data: {
-      patientId: patientProfileId,
+      patientId,
       physioId: session.user.id,
+      pillar,
+      diagnosis,
+      treatmentText,
       exercises: {
-        create: (exerciseIds || []).map((exId: string) => ({
-          exerciseId: exId,
-        })),
+        create: exerciseIds.map((exerciseId) => ({ exerciseId })),
       },
       restrictions: {
-        create: (restrictions || []).map((r: { description: string; severity: string }) => ({
+        create: restrictions.map((r) => ({
           description: r.description,
-          severity: r.severity || 'WARNING',
+          severity: r.severity,
         })),
       },
       nutrition: {
-        create: (nutrition || []).map((n: { type: string; description: string; dose?: string; time?: string }) => ({
+        create: nutrition.map((n) => ({
           type: n.type,
           description: n.description,
           dose: n.dose || null,

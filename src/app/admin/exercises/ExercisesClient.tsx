@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Dumbbell, Plus, X, Trash2 } from 'lucide-react';
+import { Dumbbell, Plus, X, Trash2, AlertCircle } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 
 interface Exercise {
   id: string;
@@ -27,6 +28,8 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
   const [form, setForm] = useState({
     name: '', description: '', sets: '', reps: '', duration: '', frequency: '', tags: '', isHomeOnly: true, imageUrl: '', videoUrl: '',
   });
+  const [deleteTarget, setDeleteTarget] = useState<Exercise | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,11 +52,17 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este ejercicio?')) return;
-    const res = await fetch(`/api/exercises?id=${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      setExercises(exercises.filter(e => e.id !== id));
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/exercises?id=${deleteTarget.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setExercises(exercises.filter(e => e.id !== deleteTarget.id));
+      }
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -143,7 +152,7 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {exercises.map((ex) => (
             <div key={ex.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow group relative">
-              <button onClick={() => handleDelete(ex.id)}
+              <button onClick={() => setDeleteTarget(ex)}
                 className="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -183,6 +192,37 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal open={deleteTarget !== null} onClose={() => !deleting && setDeleteTarget(null)} size="sm">
+        <div className="text-center space-y-4 pt-2">
+          <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle className="w-7 h-7 text-red-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">¿Eliminar este ejercicio?</h3>
+            <p className="text-sm text-slate-500 mt-1">
+              {deleteTarget ? `"${deleteTarget.name}" se eliminará de la biblioteca.` : ''} Esta acción no se puede deshacer.
+            </p>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleting}
+              className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium text-sm disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium text-sm disabled:opacity-50"
+            >
+              {deleting ? 'Eliminando...' : 'Eliminar'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

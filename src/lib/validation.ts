@@ -46,8 +46,20 @@ export const exerciseCreateSchema = z.object({
   isHomeOnly: z.boolean().optional(),
 });
 
+export const PILLAR_VALUES = ['PELVIC_FLOOR', 'PAIN', 'AESTHETIC'] as const;
+export type Pillar = (typeof PILLAR_VALUES)[number];
+
+export const PILLAR_LABELS: Record<Pillar, string> = {
+  PELVIC_FLOOR: 'Piso Pélvico',
+  PAIN: 'Dolor',
+  AESTHETIC: 'Estética',
+};
+
 export const treatmentPlanSchema = z.object({
   patientId: z.string().min(1),
+  pillar: z.enum(PILLAR_VALUES),
+  diagnosis: z.string().trim().min(1, 'Diagnóstico requerido').max(2000),
+  treatmentText: z.string().trim().min(1, 'Tratamiento requerido').max(5000),
   exerciseIds: z.array(z.string()).default([]),
   restrictions: z.array(z.object({
     description: z.string().trim().min(1),

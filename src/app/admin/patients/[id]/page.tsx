@@ -1,13 +1,20 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { ArrowLeft, Activity, AlertTriangle, Apple, Calendar } from 'lucide-react';
+import { ArrowLeft, Activity, AlertTriangle, Apple, Calendar, FileText, Stethoscope, Plus, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProgressChart from './LazyProgressChart';
 import ChatClient from '@/components/ChatClient';
 import ReminderButton from './ReminderButton';
 import AISummaryButton from './AISummaryButton';
+import { PILLAR_LABELS, PILLAR_VALUES, type Pillar } from '@/lib/validation';
+
+const PILLAR_STYLES: Record<Pillar, { bg: string; border: string; text: string; pill: string }> = {
+  PELVIC_FLOOR: { bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700', pill: 'bg-rose-100 text-rose-800' },
+  PAIN: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', pill: 'bg-amber-100 text-amber-800' },
+  AESTHETIC: { bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-700', pill: 'bg-violet-100 text-violet-800' },
+};
 
 export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -15,13 +22,13 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  // Primero obtenemos el profile para conocer su userId, luego las citas en paralelo
   const profile = await prisma.patientProfile.findUnique({
     where: { id },
     include: {
       user: true,
       treatmentPlans: {
         where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
         include: {
           exercises: { include: { exercise: true } },
           restrictions: true,
@@ -34,7 +41,12 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
   if (!profile) return notFound();
 
-  const plan = profile.treatmentPlans[0];
+  // Indexar planes por pilar (último activo gana, por createdAt desc)
+  const plansByPillar = new Map<Pillar, (typeof profile.treatmentPlans)[number]>();
+  for (const p of profile.treatmentPlans) {
+    const key = p.pillar as Pillar;
+    if (!plansByPillar.has(key)) plansByPillar.set(key, p);
+  }
 
   const appointments = await prisma.appointment.findMany({
     where: { patientId: profile.userId },
@@ -45,8 +57,10 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
   const chartData = profile.progressLogs.map(log => ({
     date: log.date.toISOString(),
     cumplimiento: log.percentage,
-    dolor: log.painLevel
+    dolor: log.painLevel,
   }));
+
+  const hasAnyPlan = profile.treatmentPlans.length > 0;
 
   return (
     <div className="space-y-6">
@@ -64,12 +78,6 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ReminderButton patientUserId={profile.userId} patientName={profile.user.name} />
-          <Link
-            href={`/admin/patients/${id}/plan`}
-            className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm"
-          >
-            {plan ? 'Editar Plan' : 'Crear Plan'}
-          </Link>
         </div>
       </div>
 
@@ -79,7 +87,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           <h3 className="font-semibold text-slate-900 mb-2">Información</h3>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Diagnóstico</dt>
+              <dt className="text-slate-500">Diagnóstico general</dt>
               <dd className="text-slate-900 font-medium text-right max-w-[60%]">{profile.diagnosis}</dd>
             </div>
             <div className="flex justify-between">
@@ -98,7 +106,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             )}
             <div className="pt-2 border-t border-slate-100 flex justify-between">
               <dt className="text-slate-500">Racha Actual</dt>
-              <dd className="text-orange-600 font-bold">{profile.currentStreak} días 🔥</dd>
+              <dd className="text-orange-600 font-bold">{profile.currentStreak} días</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-500">Racha Máxima</dt>
@@ -117,75 +125,68 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
               <ProgressChart data={chartData} />
             </div>
           )}
-          
           <AISummaryButton patientId={profile.id} />
         </div>
       </div>
 
-      {/* Treatment Plan */}
-      {plan ? (
+      {/* Pilares de tratamiento */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold text-slate-900">Pilares de tratamiento</h2>
+          {!hasAnyPlan && (
+            <span className="text-xs text-slate-500">Aún no hay planes asignados</span>
+          )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Exercises */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-amber-500" /> Ejercicios ({plan.exercises.length})
-            </h3>
-            <div className="space-y-2">
-              {plan.exercises.map(pe => (
-                <div key={pe.id} className="text-sm p-2 bg-slate-50 rounded-lg">
-                  <p className="font-medium text-slate-800">{pe.exercise.name}</p>
-                  <p className="text-slate-500 text-xs mt-0.5">
-                    {pe.exercise.sets && `${pe.exercise.sets} series`}
-                    {pe.exercise.reps && ` x ${pe.exercise.reps} reps`}
-                    {pe.exercise.duration && ` · ${pe.exercise.duration}`}
-                  </p>
+          {PILLAR_VALUES.map(pillar => {
+            const plan = plansByPillar.get(pillar);
+            const styles = PILLAR_STYLES[pillar];
+            return (
+              <div key={pillar} className={`rounded-xl border ${styles.border} ${styles.bg} p-5 flex flex-col`}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className={`font-bold ${styles.text}`}>{PILLAR_LABELS[pillar]}</h3>
+                  <Link
+                    href={`/admin/patients/${id}/plan?pillar=${pillar}`}
+                    className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${styles.pill} hover:opacity-90 transition-opacity`}
+                  >
+                    {plan ? (<><Pencil className="w-3 h-3" /> Editar</>) : (<><Plus className="w-3 h-3" /> Crear</>)}
+                  </Link>
                 </div>
-              ))}
-              {plan.exercises.length === 0 && <p className="text-sm text-slate-400">Sin ejercicios asignados</p>}
-            </div>
-          </div>
 
-          {/* Restrictions */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-500" /> Restricciones ({plan.restrictions.length})
-            </h3>
-            <div className="space-y-2">
-              {plan.restrictions.map(r => (
-                <div key={r.id} className={`text-sm p-2 rounded-lg ${r.severity === 'CRITICAL' ? 'bg-red-50 text-red-800' : r.severity === 'IMPORTANT' ? 'bg-orange-50 text-orange-800' : 'bg-amber-50 text-amber-800'}`}>
-                  <p className="font-medium">{r.description}</p>
-                  <p className="text-xs opacity-70 mt-0.5">{r.severity}</p>
-                </div>
-              ))}
-              {plan.restrictions.length === 0 && <p className="text-sm text-slate-400">Sin restricciones</p>}
-            </div>
-          </div>
-
-          {/* Nutrition */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Apple className="w-4 h-4 text-green-600" /> Nutrición ({plan.nutrition.length})
-            </h3>
-            <div className="space-y-2">
-              {plan.nutrition.map(n => (
-                <div key={n.id} className="text-sm p-2 bg-green-50 rounded-lg">
-                  <p className="font-medium text-green-900">{n.description}</p>
-                  {n.dose && <p className="text-green-700 text-xs mt-0.5">Dosis: {n.dose}</p>}
-                  {n.time && <p className="text-green-600 text-xs">Horario: {n.time}</p>}
-                </div>
-              ))}
-              {plan.nutrition.length === 0 && <p className="text-sm text-slate-400">Sin indicaciones nutricionales</p>}
-            </div>
-          </div>
+                {plan ? (
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                        <Stethoscope className="w-3 h-3" /> Diagnóstico
+                      </p>
+                      <p className="text-slate-800 mt-1 line-clamp-3 whitespace-pre-wrap">{plan.diagnosis || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                        <FileText className="w-3 h-3" /> Tratamiento
+                      </p>
+                      <p className="text-slate-800 mt-1 line-clamp-4 whitespace-pre-wrap">{plan.treatmentText || '—'}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-white/60">
+                      <span className="inline-flex items-center gap-1 text-[11px] bg-white/80 px-2 py-0.5 rounded-full text-slate-700">
+                        <Activity className="w-3 h-3" /> {plan.exercises.length} ej.
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[11px] bg-white/80 px-2 py-0.5 rounded-full text-slate-700">
+                        <AlertTriangle className="w-3 h-3" /> {plan.restrictions.length} restr.
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[11px] bg-white/80 px-2 py-0.5 rounded-full text-slate-700">
+                        <Apple className="w-3 h-3" /> {plan.nutrition.length} nutr.
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">Sin plan activo en este pilar.</p>
+                )}
+              </div>
+            );
+          })}
         </div>
-      ) : (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
-          <p className="text-amber-800 font-medium">Este paciente no tiene un plan de tratamiento activo.</p>
-          <Link href={`/admin/patients/${id}/plan`} className="text-amber-500 font-medium text-sm hover:underline mt-2 inline-block">
-            Crear plan ahora →
-          </Link>
-        </div>
-      )}
+      </div>
 
       {/* Appointments */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
@@ -216,10 +217,10 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
       {/* Chat */}
       <div className="pt-4">
         <h3 className="font-semibold text-slate-900 mb-3">Mensajes con el Paciente</h3>
-        <ChatClient 
-          currentUserId={session.user.id} 
-          otherUserId={profile.userId} 
-          otherUserName={profile.user.name} 
+        <ChatClient
+          currentUserId={session.user.id}
+          otherUserId={profile.userId}
+          otherUserName={profile.user.name}
         />
       </div>
     </div>

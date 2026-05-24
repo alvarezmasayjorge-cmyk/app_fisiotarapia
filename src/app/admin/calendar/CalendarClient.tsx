@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Calendar, Clock, Video, MapPin, Plus, X } from 'lucide-react';
+import { Calendar, Clock, Video, MapPin, Plus, X, AlertCircle } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
 
 interface Patient {
   id: string;
@@ -22,6 +23,8 @@ export default function CalendarClient({ appointments, patients }: { appointment
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ patientUserId: '', date: '', time: '10:00', mode: 'PRESENTIAL' });
+  const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const upcoming = appointments.filter(a => new Date(a.date) >= new Date());
   const past = appointments.filter(a => new Date(a.date) < new Date());
@@ -54,14 +57,20 @@ export default function CalendarClient({ appointments, patients }: { appointment
     }
   };
 
-  const handleCancel = async (id: string) => {
-    if (!confirm('¿Cancelar esta cita?')) return;
-    await fetch('/api/appointments', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: 'CANCELLED' }),
-    });
-    router.refresh();
+  const confirmCancel = async () => {
+    if (!cancelTargetId) return;
+    setCancelling(true);
+    try {
+      await fetch('/api/appointments', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: cancelTargetId, status: 'CANCELLED' }),
+      });
+      setCancelTargetId(null);
+      router.refresh();
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const handleComplete = async (id: string) => {
@@ -156,7 +165,7 @@ export default function CalendarClient({ appointments, patients }: { appointment
                       {apt.status === 'SCHEDULED' && (
                         <>
                           <button onClick={() => handleComplete(apt.id)} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200 transition-colors">Completar</button>
-                          <button onClick={() => handleCancel(apt.id)} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition-colors">Cancelar</button>
+                          <button onClick={() => setCancelTargetId(apt.id)} className="px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition-colors">Cancelar</button>
                         </>
                       )}
                     </div>
@@ -167,6 +176,35 @@ export default function CalendarClient({ appointments, patients }: { appointment
           </div>
         )}
       </div>
+
+      {/* Cancel Confirmation Modal */}
+      <Modal open={cancelTargetId !== null} onClose={() => !cancelling && setCancelTargetId(null)} size="sm">
+        <div className="text-center space-y-4 pt-2">
+          <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle className="w-7 h-7 text-red-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">¿Cancelar esta cita?</h3>
+            <p className="text-sm text-slate-500 mt-1">El paciente verá la cita como cancelada.</p>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={() => setCancelTargetId(null)}
+              disabled={cancelling}
+              className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium text-sm disabled:opacity-50"
+            >
+              No, volver
+            </button>
+            <button
+              onClick={confirmCancel}
+              disabled={cancelling}
+              className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium text-sm disabled:opacity-50"
+            >
+              {cancelling ? 'Cancelando...' : 'Sí, cancelar'}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Past */}
       {past.length > 0 && (

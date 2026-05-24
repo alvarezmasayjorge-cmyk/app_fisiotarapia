@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const POLL_MS = 2500;
+const POLL_MS = 5000;
 const HEARTBEAT_MS = 25000;
 
 export async function GET(req: NextRequest) {

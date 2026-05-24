@@ -65,6 +65,20 @@ export default function PatientDashboardClient({
     }
   }, [progressPercentage, painLevelRecorded, showPainModal]);
 
+  // Close pain modal with ESC + lock body scroll while open
+  useEffect(() => {
+    if (!showPainModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowPainModal(false);
+    };
+    document.addEventListener('keydown', handleEscape);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [showPainModal]);
+
   const toggleComplete = async (planExerciseId: string) => {
     if (loadingIds.has(planExerciseId)) return;
     
@@ -281,8 +295,23 @@ export default function PatientDashboardClient({
 
       {/* Pain Feedback Modal */}
       {showPainModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 space-y-6 shadow-2xl transform animate-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setShowPainModal(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="bg-white rounded-3xl w-full max-w-sm p-6 space-y-6 shadow-2xl transform animate-in zoom-in-95 duration-200 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowPainModal(false)}
+              className="absolute top-3 right-3 p-2 hover:bg-slate-100 rounded-full transition-colors"
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5 text-slate-500" />
+            </button>
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="w-8 h-8 text-green-600" />
