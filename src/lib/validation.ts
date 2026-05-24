@@ -25,12 +25,29 @@ export const appointmentSchema = z.object({
   status: z.enum(['SCHEDULED', 'COMPLETED', 'CANCELLED']).optional(),
 });
 
+const phoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\+?[0-9\s\-()]{7,20}$/, 'Teléfono inválido')
+  .transform((v) => v.replace(/[\s\-()]/g, ''));
+
 export const patientCreateSchema = z.object({
   name: z.string().trim().min(2, 'Nombre demasiado corto'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
+  phone: phoneSchema.optional().nullable().or(z.literal('').transform(() => null)),
   diagnosis: z.string().trim().min(2, 'Diagnóstico requerido'),
   notes: z.string().max(2000).optional().nullable(),
+});
+
+export const patientUpdateSchema = z.object({
+  name: z.string().trim().min(2, 'Nombre demasiado corto').optional(),
+  email: z.string().email('Email inválido').optional(),
+  password: z.string().min(6, 'Mínimo 6 caracteres').optional().or(z.literal('')),
+  phone: phoneSchema.optional().nullable().or(z.literal('').transform(() => null)),
+  diagnosis: z.string().trim().min(2, 'Diagnóstico requerido').optional(),
+  notes: z.string().max(2000).optional().nullable(),
+  isActive: z.boolean().optional(),
 });
 
 export const exerciseCreateSchema = z.object({

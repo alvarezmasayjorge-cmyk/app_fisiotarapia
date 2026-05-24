@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, UserPlus, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, UserPlus, Eye, EyeOff, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewPatientPage() {
@@ -14,6 +14,7 @@ export default function NewPatientPage() {
     name: '',
     email: '',
     password: '',
+    phone: '',
     diagnosis: '',
     notes: '',
   });
@@ -109,6 +110,21 @@ export default function NewPatientPage() {
             </button>
           </div>
           <p className="text-xs text-slate-400 mt-1">El paciente usará esto para iniciar sesión</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Celular / WhatsApp</label>
+          <div className="relative">
+            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={e => setForm({ ...form, phone: e.target.value })}
+              placeholder="+51 999 999 999"
+              className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
+            />
+          </div>
+          <p className="text-xs text-slate-400 mt-1">Opcional — incluye el código de país para WhatsApp</p>
         </div>
 
         <div>

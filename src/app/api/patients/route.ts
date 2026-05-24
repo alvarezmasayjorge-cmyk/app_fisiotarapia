@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = await parseBody(req, patientCreateSchema);
   if (!parsed.success) return parsed.response;
-  const { name, email, password, diagnosis, notes } = parsed.data;
+  const { name, email, password, phone, diagnosis, notes } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       name,
       email,
       password: hashedPassword,
+      phone: phone || null,
       role: 'PATIENT',
       patientProfile: {
         create: {

@@ -1,13 +1,14 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { ArrowLeft, Activity, AlertTriangle, Apple, Calendar, FileText, Stethoscope, Plus, Pencil } from 'lucide-react';
+import { ArrowLeft, Activity, AlertTriangle, Apple, Calendar, FileText, Stethoscope, Plus, Pencil, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProgressChart from './LazyProgressChart';
 import ChatClient from '@/components/ChatClient';
 import ReminderButton from './ReminderButton';
 import AISummaryButton from './AISummaryButton';
+import PatientActions from './PatientActions';
 import { PILLAR_LABELS, PILLAR_VALUES, type Pillar } from '@/lib/validation';
 
 const PILLAR_STYLES: Record<Pillar, { bg: string; border: string; text: string; pill: string }> = {
@@ -78,6 +79,16 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ReminderButton patientUserId={profile.userId} patientName={profile.user.name} />
+          <PatientActions
+            profileId={profile.id}
+            initial={{
+              name: profile.user.name,
+              email: profile.user.email,
+              phone: profile.user.phone,
+              diagnosis: profile.diagnosis,
+              notes: profile.notes,
+            }}
+          />
         </div>
       </div>
 
@@ -90,6 +101,21 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
               <dt className="text-slate-500">Diagnóstico general</dt>
               <dd className="text-slate-900 font-medium text-right max-w-[60%]">{profile.diagnosis}</dd>
             </div>
+            {profile.user.phone && (
+              <div className="flex justify-between items-center">
+                <dt className="text-slate-500">WhatsApp</dt>
+                <dd>
+                  <a
+                    href={`https://wa.me/${profile.user.phone.replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-green-600 hover:text-green-700 font-medium"
+                  >
+                    <Phone className="w-3.5 h-3.5" /> {profile.user.phone}
+                  </a>
+                </dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-slate-500">Inicio</dt>
               <dd className="text-slate-900">{new Intl.DateTimeFormat('es-ES', { dateStyle: 'long' }).format(new Date(profile.startDate))}</dd>
