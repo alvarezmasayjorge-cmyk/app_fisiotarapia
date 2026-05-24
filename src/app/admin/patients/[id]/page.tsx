@@ -9,6 +9,7 @@ import ChatClient from '@/components/ChatClient';
 import ReminderButton from './ReminderButton';
 import AISummaryButton from './AISummaryButton';
 import PatientActions from './PatientActions';
+import MedicationsAdmin from './MedicationsAdmin';
 import { PILLAR_LABELS, PILLAR_VALUES, type Pillar } from '@/lib/validation';
 
 const PILLAR_STYLES: Record<Pillar, { bg: string; border: string; text: string; pill: string }> = {
@@ -49,11 +50,17 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
     if (!plansByPillar.has(key)) plansByPillar.set(key, p);
   }
 
-  const appointments = await prisma.appointment.findMany({
-    where: { patientId: profile.userId },
-    orderBy: { date: 'desc' },
-    take: 5,
-  });
+  const [appointments, medications] = await Promise.all([
+    prisma.appointment.findMany({
+      where: { patientId: profile.userId },
+      orderBy: { date: 'desc' },
+      take: 5,
+    }),
+    prisma.medication.findMany({
+      where: { patientId: profile.id },
+      orderBy: [{ isActive: 'desc' }, { createdAt: 'desc' }],
+    }),
+  ]);
 
   const chartData = profile.progressLogs.map(log => ({
     date: log.date.toISOString(),
@@ -213,6 +220,21 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           })}
         </div>
       </div>
+
+      {/* Medicamentos */}
+      <MedicationsAdmin
+        patientId={profile.id}
+        initial={medications.map(m => ({
+          id: m.id,
+          name: m.name,
+          dose: m.dose,
+          frequencyHours: m.frequencyHours,
+          startAt: m.startAt.toISOString(),
+          endAt: m.endAt?.toISOString() ?? null,
+          isActive: m.isActive,
+          notes: m.notes,
+        }))}
+      />
 
       {/* Appointments */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">

@@ -48,28 +48,29 @@ export default function PatientDashboardClient({
   
   // Modals
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
-  const [showPainModal, setShowPainModal] = useState(false);
-  const [painSubmitting, setPainSubmitting] = useState(false);
+  const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const [checkInSubmitting, setCheckInSubmitting] = useState(false);
+  const [improvement, setImprovement] = useState<number>(7);
+  const [showPainSlider, setShowPainSlider] = useState(false);
   const [painLevel, setPainLevel] = useState<number>(5);
 
   const totalExercises = exercises.length;
   const completedExercises = exercises.filter(e => e.isCompleted).length;
   const progressPercentage = totalExercises > 0 ? Math.round((completedExercises / totalExercises) * 100) : 0;
 
-  // Show pain modal when hitting 100% if not already recorded
+  // Mostrar check-in de mejoría una vez al día al cargar el dashboard
   useEffect(() => {
-    if (progressPercentage === 100 && !painLevelRecorded && !showPainModal) {
-      // Delay slightly so they see the 100% animation first
-      const timer = setTimeout(() => setShowPainModal(true), 800);
+    if (!painLevelRecorded) {
+      const timer = setTimeout(() => setShowCheckInModal(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, [progressPercentage, painLevelRecorded, showPainModal]);
+  }, [painLevelRecorded]);
 
-  // Close pain modal with ESC + lock body scroll while open
+  // Cerrar modal con ESC + bloquear scroll
   useEffect(() => {
-    if (!showPainModal) return;
+    if (!showCheckInModal) return;
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setShowPainModal(false);
+      if (e.key === 'Escape') setShowCheckInModal(false);
     };
     document.addEventListener('keydown', handleEscape);
     document.body.style.overflow = 'hidden';
@@ -77,7 +78,7 @@ export default function PatientDashboardClient({
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = '';
     };
-  }, [showPainModal]);
+  }, [showCheckInModal]);
 
   const toggleComplete = async (planExerciseId: string) => {
     if (loadingIds.has(planExerciseId)) return;
@@ -112,18 +113,21 @@ export default function PatientDashboardClient({
     }
   };
 
-  const handlePainSubmit = async () => {
-    setPainSubmitting(true);
+  const handleCheckInSubmit = async () => {
+    setCheckInSubmitting(true);
     try {
-      await fetch('/api/progress-logs', {
-        method: 'PATCH',
+      await fetch('/api/daily-checkin', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ painLevel })
+        body: JSON.stringify({
+          improvement,
+          painLevel: showPainSlider ? painLevel : null,
+        }),
       });
-      setShowPainModal(false);
-      router.refresh(); // Update streak and painLevelRecorded
+      setShowCheckInModal(false);
+      router.refresh();
     } finally {
-      setPainSubmitting(false);
+      setCheckInSubmitting(false);
     }
   };
 
@@ -293,54 +297,88 @@ export default function PatientDashboardClient({
         </div>
       )}
 
-      {/* Pain Feedback Modal */}
-      {showPainModal && (
+      {/* Check-in Diario de Mejoría */}
+      {showCheckInModal && (
         <div
           className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm"
-          onClick={() => setShowPainModal(false)}
+          onClick={() => setShowCheckInModal(false)}
           role="dialog"
           aria-modal="true"
         >
           <div
-            className="bg-white rounded-3xl w-full max-w-sm p-6 space-y-6 shadow-2xl transform animate-in zoom-in-95 duration-200 relative"
+            className="bg-white rounded-3xl w-full max-w-sm p-6 space-y-5 shadow-2xl transform animate-in zoom-in-95 duration-200 relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={() => setShowPainModal(false)}
+              onClick={() => setShowCheckInModal(false)}
               className="absolute top-3 right-3 p-2 hover:bg-slate-100 rounded-full transition-colors"
               aria-label="Cerrar"
             >
               <X className="w-5 h-5 text-slate-500" />
             </button>
+
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-900">¡Rutina Completada!</h2>
-              <p className="text-slate-500 text-sm mt-2">Dile a tu fisioterapeuta cómo te sentiste hoy para ajustar tu plan.</p>
-            </div>
-            
-            <div className="space-y-4">
-              <label className="block text-center font-medium text-slate-700">Nivel de dolor</label>
-              <div className="flex justify-between items-end px-2">
-                <span className="text-xs text-green-600 font-medium">Sin dolor (1)</span>
-                <span className="text-2xl font-bold text-slate-800">{painLevel}</span>
-                <span className="text-xs text-red-600 font-medium">Mucho (10)</span>
-              </div>
-              <input 
-                type="range" min="1" max="10" 
-                value={painLevel} 
-                onChange={(e) => setPainLevel(parseInt(e.target.value))}
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
-              />
+              <div className="text-4xl mb-3">🌸</div>
+              <h2 className="text-xl font-bold text-slate-900">¿Cómo te sientes hoy?</h2>
+              <p className="text-slate-500 text-sm mt-1">Tu respuesta ayuda a ajustar tu tratamiento.</p>
             </div>
 
-            <button 
-              onClick={handlePainSubmit}
-              disabled={painSubmitting}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center px-1">
+                <span className="text-xs text-slate-500">Muy mal</span>
+                <span className="text-3xl font-bold text-amber-500">{improvement}</span>
+                <span className="text-xs text-slate-500">Excelente</span>
+              </div>
+              <div className="flex justify-between text-lg px-1 pb-1">
+                {['😞','😕','😐','🙂','😊'].map((emoji, i) => (
+                  <span
+                    key={i}
+                    className={`cursor-pointer transition-transform ${improvement >= (i * 2 + 1) && improvement <= (i * 2 + 2) ? 'scale-125' : 'opacity-50'}`}
+                  >
+                    {emoji}
+                  </span>
+                ))}
+              </div>
+              <input
+                type="range" min="1" max="10"
+                value={improvement}
+                onChange={(e) => setImprovement(parseInt(e.target.value))}
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
+              />
+              <p className="text-xs text-center text-slate-400">Nivel de mejoría: 1 = nada mejor, 10 = me siento muy bien</p>
+            </div>
+
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowPainSlider(!showPainSlider)}
+                className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1"
+              >
+                {showPainSlider ? '▾' : '▸'} ¿Tienes dolor hoy? (opcional)
+              </button>
+              {showPainSlider && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-xs text-green-600">Sin dolor (1)</span>
+                    <span className="text-xl font-bold text-slate-800">{painLevel}</span>
+                    <span className="text-xs text-red-600">Mucho (10)</span>
+                  </div>
+                  <input
+                    type="range" min="1" max="10"
+                    value={painLevel}
+                    onChange={(e) => setPainLevel(parseInt(e.target.value))}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-400"
+                  />
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleCheckInSubmit}
+              disabled={checkInSubmitting}
               className="w-full bg-amber-500 text-white font-medium py-3 rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50"
             >
-              {painSubmitting ? 'Guardando...' : 'Guardar y Continuar'}
+              {checkInSubmitting ? 'Guardando...' : 'Guardar y Continuar'}
             </button>
           </div>
         </div>

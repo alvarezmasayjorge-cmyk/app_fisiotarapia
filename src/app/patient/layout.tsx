@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Home, MessageCircle, Calendar, FileText, LogOut } from 'lucide-react';
+import { Home, MessageCircle, Calendar, FileText, Pill, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import NotificationStatus from '@/components/NotificationStatus';
 
@@ -17,6 +17,7 @@ export default function PatientLayout({
   const navItems = [
     { name: 'Inicio', href: '/patient', icon: Home },
     { name: 'Mensajes', href: '/patient/chat', icon: MessageCircle },
+    { name: 'Medicamentos', href: '/patient/medications', icon: Pill },
     { name: 'Agenda', href: '/patient/calendar', icon: Calendar },
     { name: 'Mi Plan', href: '/patient/plan', icon: FileText },
   ];

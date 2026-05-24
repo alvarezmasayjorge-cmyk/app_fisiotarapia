@@ -43,16 +43,18 @@ model PatientProfile {
   id             String    @id @default(cuid())
   userId         String    @unique
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   diagnosis      String
   startDate      DateTime  @default(now())
   notes          String?
   isActive       Boolean   @default(true)
   currentStreak  Int       @default(0)
   longestStreak  Int       @default(0)
-  
+
   treatmentPlans TreatmentPlan[]
   progressLogs   ProgressLog[]
+  medications    Medication[]
+  dailyCheckIns  DailyCheckIn[]
 }
 
 model Exercise {
@@ -168,7 +170,49 @@ model Message {
   content        String
   createdAt      DateTime  @default(now())
   read           Boolean   @default(false)
-  
+
   sender         User      @relation("SentMessages", fields: [senderId], references: [id])
   receiver       User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model Medication {
+  id              String    @id @default(cuid())
+  patientId       String
+  patient         PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  name            String    // "Ibuprofeno"
+  dose            String    // "400mg"
+  frequencyHours  Int       // cada cuántas horas (1, 4, 6, 8, 12, 24)
+  startAt         DateTime  // primera dosis
+  endAt           DateTime?
+  isActive        Boolean   @default(true)
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  doses           MedicationDoseLog[]
+
+  @@index([patientId, isActive])
+}
+
+model MedicationDoseLog {
+  id            String    @id @default(cuid())
+  medicationId  String
+  medication    Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  scheduledAt   DateTime
+  notifiedAt    DateTime?
+  takenAt       DateTime?
+
+  @@index([scheduledAt, notifiedAt])
+  @@index([medicationId, scheduledAt])
+}
+
+model DailyCheckIn {
+  id            String    @id @default(cuid())
+  patientId     String
+  patient       PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  date          DateTime  @default(now())
+  improvement   Int       // 1-10 (10 = máxima mejoría)
+  painLevel     Int?      // opcional
+  notes         String?
+
+  @@index([patientId, date])
 }

@@ -70,8 +70,10 @@ export default async function PatientDashboard() {
     }
   }));
 
-  const todayLog = profile.progressLogs.find(l => l.date >= todayStart && l.date < todayEnd);
-  const painLevelRecorded = !!todayLog?.painLevel;
+  const todayCheckIn = await prisma.dailyCheckIn.findFirst({
+    where: { patientId: profile.id, date: { gte: todayStart, lt: todayEnd } },
+  });
+  const painLevelRecorded = !!todayCheckIn;
 
   const chartData = profile.progressLogs.map(log => ({
     date: log.date.toISOString(),

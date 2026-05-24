@@ -90,6 +90,37 @@ export const treatmentPlanSchema = z.object({
   })).default([]),
 });
 
+export const medicationCreateSchema = z.object({
+  patientId: z.string().min(1),
+  name: z.string().trim().min(1, 'Nombre requerido').max(120),
+  dose: z.string().trim().min(1, 'Dosis requerida').max(60),
+  frequencyHours: z.number().int().min(1).max(72),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime().nullable().optional(),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export const medicationUpdateSchema = z.object({
+  name: z.string().trim().min(1).max(120).optional(),
+  dose: z.string().trim().min(1).max(60).optional(),
+  frequencyHours: z.number().int().min(1).max(72).optional(),
+  startAt: z.string().datetime().optional(),
+  endAt: z.string().datetime().nullable().optional(),
+  isActive: z.boolean().optional(),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export const dailyCheckInSchema = z.object({
+  improvement: z.number().int().min(1).max(10),
+  painLevel: z.number().int().min(1).max(10).nullable().optional(),
+  notes: z.string().max(500).nullable().optional(),
+});
+
+export const medicationDoseTakenSchema = z.object({
+  doseId: z.string().min(1).optional(),
+  medicationId: z.string().min(1).optional(),
+}).refine((d) => d.doseId || d.medicationId, { message: 'doseId o medicationId requerido' });
+
 export function validationErrorResponse(error: z.ZodError) {
   return NextResponse.json(
     {
