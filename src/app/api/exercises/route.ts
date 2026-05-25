@@ -51,6 +51,44 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'ID requerido' }, { status: 400 });
+
+    const parsed = await parseBody(req, createSchema.partial());
+    if (!parsed.success) return parsed.response;
+    const d = parsed.data;
+
+    const exercise = await prisma.exercise.update({
+      where: { id },
+      data: {
+        ...(d.name !== undefined && { name: d.name }),
+        ...(d.description !== undefined && { description: d.description }),
+        ...(d.sets !== undefined && { sets: d.sets ? Number(d.sets) : null }),
+        ...(d.reps !== undefined && { reps: d.reps ? Number(d.reps) : null }),
+        ...(d.duration !== undefined && { duration: d.duration || null }),
+        ...(d.frequency !== undefined && { frequency: d.frequency || null }),
+        ...(d.tags !== undefined && { tags: d.tags || null }),
+        ...(d.isHomeOnly !== undefined && { isHomeOnly: d.isHomeOnly }),
+        ...(d.imageUrl !== undefined && { imageUrl: d.imageUrl || null }),
+        ...(d.videoUrl !== undefined && { videoUrl: d.videoUrl || null }),
+      },
+    });
+
+    return NextResponse.json(exercise);
+  } catch (error) {
+    console.error('[api/exercises PATCH] error:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'ADMIN') {
