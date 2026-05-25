@@ -3,11 +3,12 @@ import { authOptions } from "@/lib/auth"
 import { NextRequest } from "next/server"
 
 const handler = (req: NextRequest, ctx: any) => {
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host")
-  const proto = req.headers.get("x-forwarded-proto") || "https"
-  if (host) {
-    // Avoid overriding if we are on localhost and a specific configuration exists
-    if (!host.includes("localhost:3000") || !process.env.NEXTAUTH_URL) {
+  // Only auto-detect URL from headers when NEXTAUTH_URL is not explicitly set
+  // (e.g. Vercel preview deployments). If NEXTAUTH_URL is set in env vars, always respect it.
+  if (!process.env.NEXTAUTH_URL) {
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host")
+    const proto = req.headers.get("x-forwarded-proto") || "https"
+    if (host) {
       process.env.NEXTAUTH_URL = `${proto}://${host}`
     }
   }
