@@ -218,7 +218,7 @@ export default function MedicationsAdmin({
             <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-r-lg text-sm text-red-700">{error}</div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Medicamento *</label>
               <input
@@ -226,7 +226,7 @@ export default function MedicationsAdmin({
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 placeholder="Ej: Ibuprofeno"
-                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
               />
             </div>
             <div>
@@ -236,7 +236,7 @@ export default function MedicationsAdmin({
                 value={form.dose}
                 onChange={e => setForm({ ...form, dose: e.target.value })}
                 placeholder="Ej: 400mg"
-                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
               />
             </div>
             <div>
@@ -244,7 +244,7 @@ export default function MedicationsAdmin({
               <select
                 value={form.frequencyHours}
                 onChange={e => setForm({ ...form, frequencyHours: Number(e.target.value) })}
-                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white"
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 bg-white"
               >
                 {FREQ_OPTIONS.map(o => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -258,7 +258,7 @@ export default function MedicationsAdmin({
                 required
                 value={form.startAt}
                 onChange={e => setForm({ ...form, startAt: e.target.value })}
-                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
               />
             </div>
             <div>
@@ -267,7 +267,7 @@ export default function MedicationsAdmin({
                 type="datetime-local"
                 value={form.endAt}
                 onChange={e => setForm({ ...form, endAt: e.target.value })}
-                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
               />
             </div>
             <div className="sm:col-span-2">
@@ -276,21 +276,21 @@ export default function MedicationsAdmin({
                 value={form.notes}
                 onChange={e => setForm({ ...form, notes: e.target.value })}
                 placeholder="Con alimentos, tomar con agua..."
-                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
               />
             </div>
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2">
-            <button type="button" onClick={closeModal} className="px-4 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
-              Cancelar
-            </button>
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white px-4 py-3 sm:py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50"
+              className="flex-1 bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm disabled:opacity-50"
             >
               {saving ? 'Guardando...' : (editingId === '' ? 'Agregar medicamento' : 'Guardar cambios')}
+            </button>
+            <button type="button" onClick={closeModal} className="px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+              Cancelar
             </button>
           </div>
         </form>
