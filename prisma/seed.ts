@@ -76,9 +76,11 @@ async function main() {
     include: { patientProfile: true }
   });
 
-  // 3. Create Exercises Library
-  const ex1 = await prisma.exercise.create({
-    data: {
+  // 3. Create Exercises Library (upsert para evitar duplicados)
+  const ex1 = await prisma.exercise.upsert({
+    where: { name: 'Elevación de pierna extendida' },
+    update: {},
+    create: {
       name: 'Elevación de pierna extendida',
       description: 'Acuéstate boca arriba, dobla una rodilla y mantén la otra pierna recta. Levanta la pierna recta a la altura de la rodilla opuesta.',
       sets: 3,
@@ -90,8 +92,10 @@ async function main() {
     }
   });
 
-  const ex2 = await prisma.exercise.create({
-    data: {
+  const ex2 = await prisma.exercise.upsert({
+    where: { name: 'Deslizamiento de talón' },
+    update: {},
+    create: {
       name: 'Deslizamiento de talón',
       description: 'Acuéstate boca arriba, desliza el talón hacia los glúteos doblando la rodilla, luego estira lentamente.',
       sets: 3,
@@ -100,8 +104,10 @@ async function main() {
     }
   });
 
-  const ex3 = await prisma.exercise.create({
-    data: {
+  const ex3 = await prisma.exercise.upsert({
+    where: { name: 'Puente de glúteos' },
+    update: {},
+    create: {
       name: 'Puente de glúteos',
       description: 'Acuéstate boca arriba con rodillas dobladas. Levanta la pelvis apretando glúteos y abdomen.',
       sets: 4,
@@ -110,8 +116,10 @@ async function main() {
     }
   });
 
-  const ex4 = await prisma.exercise.create({
-    data: {
+  const ex4 = await prisma.exercise.upsert({
+    where: { name: 'Péndulo de Codman' },
+    update: {},
+    create: {
       name: 'Péndulo de Codman',
       description: 'Apoya el brazo sano en una mesa. Deja colgar el brazo afectado y haz círculos pequeños usando el peso del cuerpo.',
       sets: 3,

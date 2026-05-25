@@ -60,7 +60,7 @@ model PatientProfile {
 
 model Exercise {
   id             String    @id @default(cuid())
-  name           String
+  name           String    @unique
   description    String
   sets           Int?
   reps           Int?
