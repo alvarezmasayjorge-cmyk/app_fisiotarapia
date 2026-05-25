@@ -39,13 +39,13 @@ export function Modal({ open, onClose, title, children, size = 'md' }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className={`bg-white w-full ${sizeClasses[size]} rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-200`}
+        className={`bg-white w-full ${sizeClasses[size]} rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[calc(100dvh-5rem)] lg:max-h-[90vh] flex flex-col mb-20 lg:mb-0 animate-in slide-in-from-bottom duration-200`}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (

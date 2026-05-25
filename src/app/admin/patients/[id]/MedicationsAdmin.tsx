@@ -218,15 +218,15 @@ export default function MedicationsAdmin({
             <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-r-lg text-sm text-red-700">{error}</div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Medicamento *</label>
               <input
                 required
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 placeholder="Ej: Ibuprofeno"
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               />
             </div>
             <div>
@@ -236,7 +236,7 @@ export default function MedicationsAdmin({
                 value={form.dose}
                 onChange={e => setForm({ ...form, dose: e.target.value })}
                 placeholder="Ej: 400mg"
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               />
             </div>
             <div>
@@ -244,7 +244,7 @@ export default function MedicationsAdmin({
               <select
                 value={form.frequencyHours}
                 onChange={e => setForm({ ...form, frequencyHours: Number(e.target.value) })}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 bg-white"
               >
                 {FREQ_OPTIONS.map(o => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -258,7 +258,7 @@ export default function MedicationsAdmin({
                 required
                 value={form.startAt}
                 onChange={e => setForm({ ...form, startAt: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               />
             </div>
             <div>
@@ -267,30 +267,30 @@ export default function MedicationsAdmin({
                 type="datetime-local"
                 value={form.endAt}
                 onChange={e => setForm({ ...form, endAt: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               />
             </div>
-            <div className="col-span-2">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-1">Notas</label>
               <input
                 value={form.notes}
                 onChange={e => setForm({ ...form, notes: e.target.value })}
                 placeholder="Con alimentos, tomar con agua..."
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+                className="w-full px-3 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               />
             </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2">
+            <button type="button" onClick={closeModal} className="px-4 py-3 sm:py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+              Cancelar
+            </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50"
+              className="flex-1 bg-blue-600 text-white px-4 py-3 sm:py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm disabled:opacity-50"
             >
               {saving ? 'Guardando...' : (editingId === '' ? 'Agregar medicamento' : 'Guardar cambios')}
-            </button>
-            <button type="button" onClick={closeModal} className="px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
-              Cancelar
             </button>
           </div>
         </form>
@@ -314,29 +314,33 @@ function MedRow({
 }) {
   const start = new Date(med.startAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border ${med.isActive ? 'bg-blue-50/40 border-blue-100' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
-      <Pill className={`w-4 h-4 shrink-0 ${med.isActive ? 'text-blue-500' : 'text-slate-400'}`} />
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm text-slate-900 truncate">{med.name} <span className="font-normal text-slate-500">— {med.dose}</span></p>
-        <p className="text-xs text-slate-500">{freqLabel(med.frequencyHours)} · desde {start}</p>
-        {med.notes && <p className="text-xs text-slate-400 mt-0.5">{med.notes}</p>}
+    <div className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl border ${med.isActive ? 'bg-blue-50/40 border-blue-100' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
+      <div className="flex items-start gap-3 flex-1 min-w-0">
+        <Pill className={`w-4 h-4 shrink-0 mt-0.5 ${med.isActive ? 'text-blue-500' : 'text-slate-400'}`} />
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-sm text-slate-900 break-words">{med.name} <span className="font-normal text-slate-500">— {med.dose}</span></p>
+          <p className="text-xs text-slate-500">{freqLabel(med.frequencyHours)} · desde {start}</p>
+          {med.notes && <p className="text-xs text-slate-400 mt-0.5 break-words">{med.notes}</p>}
+        </div>
       </div>
-      <button onClick={() => onEdit(med)} className="p-1.5 rounded-lg hover:bg-white text-slate-500 hover:text-blue-600 transition-colors" title="Editar">
-        <Pencil className="w-4 h-4" />
-      </button>
-      {med.isActive && (
-        <button onClick={() => onRestart(med)} className="p-1.5 rounded-lg hover:bg-white text-slate-500 hover:text-amber-600 transition-colors" title="Reiniciar desde ahora">
-          <RotateCcw className="w-4 h-4" />
+      <div className="flex items-center gap-1 justify-end shrink-0 -mr-1 sm:mr-0">
+        <button onClick={() => onEdit(med)} className="p-2 rounded-lg hover:bg-white text-slate-500 hover:text-blue-600 transition-colors" title="Editar" aria-label="Editar">
+          <Pencil className="w-4 h-4" />
         </button>
-      )}
-      <button onClick={() => onToggle(med)} className="p-1.5 rounded-lg hover:bg-white transition-colors" title={med.isActive ? 'Pausar' : 'Reactivar'}>
-        {med.isActive
-          ? <ToggleRight className="w-5 h-5 text-blue-500" />
-          : <ToggleLeft className="w-5 h-5 text-slate-400" />}
-      </button>
-      <button onClick={() => onDelete(med.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Eliminar">
-        <Trash2 className="w-4 h-4" />
-      </button>
+        {med.isActive && (
+          <button onClick={() => onRestart(med)} className="p-2 rounded-lg hover:bg-white text-slate-500 hover:text-amber-600 transition-colors" title="Reiniciar desde ahora" aria-label="Reiniciar desde ahora">
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        )}
+        <button onClick={() => onToggle(med)} className="p-2 rounded-lg hover:bg-white transition-colors" title={med.isActive ? 'Pausar' : 'Reactivar'} aria-label={med.isActive ? 'Pausar' : 'Reactivar'}>
+          {med.isActive
+            ? <ToggleRight className="w-5 h-5 text-blue-500" />
+            : <ToggleLeft className="w-5 h-5 text-slate-400" />}
+        </button>
+        <button onClick={() => onDelete(med.id)} className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Eliminar" aria-label="Eliminar">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }
