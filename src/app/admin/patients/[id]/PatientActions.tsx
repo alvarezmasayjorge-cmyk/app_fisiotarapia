@@ -9,7 +9,7 @@ type Props = {
   profileId: string;
   initial: {
     name: string;
-    email: string;
+    email: string | null;
     phone: string | null;
     diagnosis: string;
     notes: string | null;
@@ -27,7 +27,7 @@ export default function PatientActions({ profileId, initial }: Props) {
 
   const [form, setForm] = useState({
     name: initial.name,
-    email: initial.email,
+    email: initial.email ?? '',
     phone: initial.phone ?? '',
     password: '',
     diagnosis: initial.diagnosis,

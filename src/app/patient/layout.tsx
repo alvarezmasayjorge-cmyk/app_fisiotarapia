@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Home, MessageCircle, Calendar, FileText, Pill, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import NotificationStatus from '@/components/NotificationStatus';
+import PullToRefresh from '@/components/PullToRefresh';
 
 export default function PatientLayout({
   children,
@@ -79,7 +80,7 @@ export default function PatientLayout({
           <NotificationStatus />
         </div>
 
-        {children}
+        <PullToRefresh>{children}</PullToRefresh>
       </main>
 
       {/* Mobile Bottom Navigation */}

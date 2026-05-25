@@ -91,8 +91,11 @@ export default async function PatientDashboard() {
     isCompleted: pe.completedLogs.length > 0,
     exercise: {
       name: pe.exercise.name,
+      description: pe.exercise.description,
       sets: pe.exercise.sets,
       reps: pe.exercise.reps,
+      duration: pe.exercise.duration,
+      frequency: pe.exercise.frequency,
       imageUrl: pe.exercise.imageUrl,
       videoUrl: pe.exercise.videoUrl,
     }

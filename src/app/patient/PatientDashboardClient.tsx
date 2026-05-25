@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, Circle, Play, AlertCircle, Flame, X, Calendar, Apple, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Circle, Play, AlertCircle, Flame, X, Calendar, Apple, TrendingUp, Info, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ProgressChart from '../admin/patients/[id]/LazyProgressChart';
@@ -12,8 +12,11 @@ type ExerciseItem = {
   isCompleted: boolean;
   exercise: {
     name: string;
+    description: string;
     sets: number | null;
     reps: number | null;
+    duration: string | null;
+    frequency: string | null;
     imageUrl: string | null;
     videoUrl: string | null;
   };
@@ -45,7 +48,8 @@ export default function PatientDashboardClient({
   const router = useRouter();
   const [exercises, setExercises] = useState(initialExercises);
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
-  
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   // Modals
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
@@ -221,11 +225,17 @@ export default function PatientDashboardClient({
             const isCompleted = pe.isCompleted;
             const isLoading = loadingIds.has(pe.id);
             const ytId = pe.exercise.videoUrl ? getYouTubeId(pe.exercise.videoUrl) : null;
-            
+            const isExpanded = expandedId === pe.id;
+            const setsRepsLabel = [
+              pe.exercise.sets ? `${pe.exercise.sets} series` : null,
+              pe.exercise.reps ? `${pe.exercise.reps} reps` : null,
+              pe.exercise.duration,
+            ].filter(Boolean).join(' · ');
+
             return (
               <div key={pe.id} className={`bg-white p-4 rounded-2xl shadow-sm border transition-all ${isCompleted ? 'border-green-200 bg-green-50/30' : 'border-slate-100'}`}>
                 <div className="flex gap-4 items-center">
-                  <button 
+                  <button
                     onClick={() => ytId && setPlayingVideo(ytId)}
                     disabled={!ytId}
                     className={`w-16 h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center relative group ${ytId ? 'bg-slate-800 cursor-pointer' : 'bg-slate-100'}`}
@@ -253,14 +263,46 @@ export default function PatientDashboardClient({
                       <Play className="w-6 h-6 text-slate-400" />
                     )}
                   </button>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <h3 className={`font-bold transition-all ${isCompleted ? 'text-slate-500 line-through' : 'text-slate-800'}`}>{pe.exercise.name}</h3>
-                    <p className="text-sm text-slate-500 mt-1">{pe.exercise.sets} series x {pe.exercise.reps} reps</p>
+                    {setsRepsLabel && <p className="text-sm text-slate-500 mt-1">{setsRepsLabel}</p>}
                   </div>
                   <button onClick={() => toggleComplete(pe.id)} disabled={isLoading} className={`shrink-0 p-2 transition-transform active:scale-95 ${isLoading ? 'opacity-50 cursor-wait' : ''}`}>
                     {isCompleted ? <CheckCircle2 className="w-8 h-8 text-green-500" /> : <Circle className="w-8 h-8 text-slate-300 hover:text-amber-500" />}
                   </button>
                 </div>
+
+                {/* Botón Ver Instrucciones */}
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : pe.id)}
+                  className="mt-3 w-full flex items-center justify-center gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700 py-2 border-t border-slate-100 transition-colors"
+                >
+                  <Info className="w-4 h-4" />
+                  {isExpanded ? 'Ocultar instrucciones' : 'Ver instrucciones'}
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Instrucciones expandidas */}
+                {isExpanded && (
+                  <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                    <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                      {pe.exercise.description}
+                    </p>
+                    {pe.exercise.frequency && (
+                      <p className="text-xs text-slate-500 mt-2">
+                        <span className="font-semibold">Frecuencia:</span> {pe.exercise.frequency}
+                      </p>
+                    )}
+                    {ytId && (
+                      <button
+                        onClick={() => setPlayingVideo(ytId)}
+                        className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700"
+                      >
+                        <Play className="w-3.5 h-3.5" fill="currentColor" /> Ver video del ejercicio
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
