@@ -16,19 +16,19 @@ export default async function AdminDashboard() {
 
   // Las 3 queries corren en paralelo, no secuencial (corta latencia ~3x)
   const [patientCount, appointmentsToday, allPatients] = await Promise.all([
-    prisma.patientProfile.count({ where: { isActive: true } }),
+    prisma.patientProfile.count({ where: { isActive: true } }).catch(() => 0),
     prisma.appointment.count({
       where: {
         physioId: session.user.id,
         date: { gte: today, lt: tomorrow },
       },
-    }),
+    }).catch(() => 0),
     prisma.patientProfile.findMany({
       include: {
         user: true,
         progressLogs: { orderBy: { date: 'desc' }, take: 3 },
       },
-    }),
+    }).catch(() => []),
   ]);
 
   // Alerta si el paciente no ha registrado en más de 3 días

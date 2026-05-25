@@ -12,14 +12,17 @@ export default async function CalendarPage() {
       where: { physioId: session.user.id },
       include: { patient: true },
       orderBy: { date: 'asc' },
-    }),
+    }).catch(() => []),
     prisma.user.findMany({
       where: { role: 'PATIENT' },
       select: { id: true, name: true },
-    }),
+    }).catch(() => []),
   ]);
 
-  const serialized = appointments.map(a => ({
+  // Filtra citas cuyo paciente fue eliminado directamente de la BD
+  const validAppointments = appointments.filter(a => a.patient != null);
+
+  const serialized = validAppointments.map(a => ({
     ...a,
     date: a.date.toISOString(),
   }));

@@ -41,11 +41,10 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
         body: JSON.stringify(form),
       });
       if (res.ok) {
+        const newEx = await res.json();
+        setExercises(prev => [...prev, newEx]);
         setShowForm(false);
         setForm({ name: '', description: '', sets: '', reps: '', duration: '', frequency: '', tags: '', isHomeOnly: true, imageUrl: '', videoUrl: '' });
-        router.refresh();
-        const newEx = await res.json();
-        setExercises([...exercises, newEx]);
       }
     } finally {
       setSaving(false);
@@ -151,9 +150,9 @@ export default function ExercisesPageClient({ initialExercises }: { initialExerc
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {exercises.map((ex) => (
-            <div key={ex.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow group relative">
+            <div key={ex.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow relative">
               <button onClick={() => setDeleteTarget(ex)}
-                className="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                className="absolute top-3 right-3 p-1.5 text-slate-300 hover:text-red-500 transition-colors">
                 <Trash2 className="w-4 h-4" />
               </button>
               <div className="flex items-start gap-3">
