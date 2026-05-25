@@ -21,12 +21,16 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email/Teléfono y contraseña requeridos');
         }
 
-        // Buscar por email o teléfono
+        const raw = credentials.identifier.trim();
+        const emailNorm = raw.toLowerCase();
+        const phoneNorm = raw.replace(/[\s\-()]/g, '');
+
+        // Buscar por email (case-insensitive) o teléfono (sin espacios/guiones)
         const user = await prisma.user.findFirst({
           where: {
             OR: [
-              { email: credentials.identifier },
-              { phone: credentials.identifier }
+              { email: { equals: emailNorm, mode: 'insensitive' } },
+              { phone: phoneNorm }
             ]
           }
         });
