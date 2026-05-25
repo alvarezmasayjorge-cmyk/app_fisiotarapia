@@ -77,7 +77,7 @@ export default async function PatientsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-slate-900 truncate">{p.user.name}</p>
-                    <p className="text-xs text-slate-500 truncate">{p.user.email}</p>
+                    <p className="text-xs text-slate-500 truncate">{p.user.phone ?? '—'}</p>
                     <p className="text-sm text-slate-700 mt-2 line-clamp-2">{p.diagnosis}</p>
                     <div className="flex flex-wrap gap-1.5 mt-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -117,7 +117,7 @@ export default async function PatientsPage() {
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-semibold text-slate-900">{p.user.name}</p>
-                          <p className="text-sm text-slate-500">{p.user.email}</p>
+                          <p className="text-sm text-slate-500">{p.user.phone ?? '—'}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
