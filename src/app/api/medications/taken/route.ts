@@ -9,63 +9,65 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const { doseId, medicationId } = await req.json();
+  try {
+    const body = await req.json();
+    const { doseId, medicationId } = body;
 
-  const profile = await prisma.patientProfile.findUnique({
-    where: { userId: session.user.id },
-    select: { id: true },
-  });
-  if (!profile) return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    const profile = await prisma.patientProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true },
+    });
+    if (!profile) return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
 
-  if (doseId) {
-    // Verificar que la dosis pertenece al paciente
-    const dose = await prisma.medicationDoseLog.findUnique({
-      where: { id: doseId },
-      include: { medication: { select: { patientId: true } } },
-    });
-    if (!dose || dose.medication.patientId !== profile.id) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-    }
-    const updated = await prisma.medicationDoseLog.update({
-      where: { id: doseId },
-      data: { takenAt: new Date() },
-    });
-    return NextResponse.json(updated);
-  }
-
-  if (medicationId) {
-    // Verificar ownership y crear/actualizar log para la dosis más próxima
-    const med = await prisma.medication.findUnique({
-      where: { id: medicationId },
-      select: { patientId: true },
-    });
-    if (!med || med.patientId !== profile.id) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-    }
-    // Buscar dosis programada sin tomar más cercana al ahora (±2h de margen)
-    const now = new Date();
-    const window2h = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-    let dose = await prisma.medicationDoseLog.findFirst({
-      where: {
-        medicationId,
-        takenAt: null,
-        scheduledAt: { lte: window2h },
-      },
-      orderBy: { scheduledAt: 'asc' },
-    });
-    // Si no hay log creado, crearlo ahora
-    if (!dose) {
-      dose = await prisma.medicationDoseLog.create({
-        data: { medicationId, scheduledAt: now, takenAt: now },
+    if (doseId) {
+      const dose = await prisma.medicationDoseLog.findUnique({
+        where: { id: doseId },
+        include: { medication: { select: { patientId: true } } },
       });
-    } else {
-      dose = await prisma.medicationDoseLog.update({
-        where: { id: dose.id },
-        data: { takenAt: now },
+      if (!dose || dose.medication.patientId !== profile.id) {
+        return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+      }
+      const updated = await prisma.medicationDoseLog.update({
+        where: { id: doseId },
+        data: { takenAt: new Date() },
       });
+      return NextResponse.json(updated);
     }
-    return NextResponse.json(dose);
-  }
 
-  return NextResponse.json({ error: 'doseId o medicationId requerido' }, { status: 400 });
+    if (medicationId) {
+      const med = await prisma.medication.findUnique({
+        where: { id: medicationId },
+        select: { patientId: true },
+      });
+      if (!med || med.patientId !== profile.id) {
+        return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+      }
+      const now = new Date();
+      const window2h = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      let dose = await prisma.medicationDoseLog.findFirst({
+        where: {
+          medicationId,
+          takenAt: null,
+          scheduledAt: { lte: window2h },
+        },
+        orderBy: { scheduledAt: 'asc' },
+      });
+      if (!dose) {
+        dose = await prisma.medicationDoseLog.create({
+          data: { medicationId, scheduledAt: now, takenAt: now },
+        });
+      } else {
+        dose = await prisma.medicationDoseLog.update({
+          where: { id: dose.id },
+          data: { takenAt: now },
+        });
+      }
+      return NextResponse.json(dose);
+    }
+
+    return NextResponse.json({ error: 'doseId o medicationId requerido' }, { status: 400 });
+  } catch (error) {
+    console.error('[api/medications/taken POST] error:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

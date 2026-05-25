@@ -16,48 +16,50 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const parsed = await parseBody(req, painUpdateSchema);
-  if (!parsed.success) return parsed.response;
-  const { painLevel, patientNotes } = parsed.data;
+  try {
+    const parsed = await parseBody(req, painUpdateSchema);
+    if (!parsed.success) return parsed.response;
+    const { painLevel, patientNotes } = parsed.data;
 
-  const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
 
-  const profile = await prisma.patientProfile.findUnique({
-    where: { userId: session.user.id },
-  });
+    const profile = await prisma.patientProfile.findUnique({
+      where: { userId: session.user.id },
+    });
 
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    if (!profile) {
+      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    }
+
+    const logId = `progress-${profile.id}-${today}`;
+    const existingLog = await prisma.progressLog.findUnique({ where: { id: logId } });
+
+    if (!existingLog || existingLog.painLevel !== null) {
+      return NextResponse.json({ error: 'Log no encontrado o ya actualizado' }, { status: 400 });
+    }
+
+    const updatedLog = await prisma.progressLog.update({
+      where: { id: logId },
+      data: {
+        painLevel,
+        patientNotes: patientNotes || null,
+      },
+    });
+
+    const newStreak = profile.currentStreak + 1;
+    const newLongest = Math.max(profile.longestStreak, newStreak);
+
+    await prisma.patientProfile.update({
+      where: { id: profile.id },
+      data: {
+        currentStreak: newStreak,
+        longestStreak: newLongest,
+      },
+    });
+
+    return NextResponse.json({ log: updatedLog, newStreak });
+  } catch (error) {
+    console.error('[api/progress-logs PATCH] error:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
-
-  // Check if we already updated streak today to prevent double counting
-  const logId = `progress-${profile.id}-${today}`;
-  const existingLog = await prisma.progressLog.findUnique({ where: { id: logId } });
-
-  if (!existingLog || existingLog.painLevel !== null) {
-    return NextResponse.json({ error: 'Log no encontrado o ya actualizado' }, { status: 400 });
-  }
-
-  const updatedLog = await prisma.progressLog.update({
-    where: { id: logId },
-    data: {
-      painLevel,
-      patientNotes: patientNotes || null,
-    },
-  });
-
-  // Calculate Streak
-  // We assume if they are submitting pain feedback, they reached 100% today.
-  let newStreak = profile.currentStreak + 1;
-  let newLongest = Math.max(profile.longestStreak, newStreak);
-
-  await prisma.patientProfile.update({
-    where: { id: profile.id },
-    data: {
-      currentStreak: newStreak,
-      longestStreak: newLongest,
-    },
-  });
-
-  return NextResponse.json({ log: updatedLog, newStreak });
 }

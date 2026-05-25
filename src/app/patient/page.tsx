@@ -2,47 +2,68 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import PatientDashboardClient from './PatientDashboardClient';
+import { AlertTriangle } from 'lucide-react';
 
 export default async function PatientDashboard() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session || session.user.role !== 'PATIENT') return null;
 
-  // Queries en paralelo para reducir latencia total
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
   const todayEnd = new Date(new Date().setHours(24, 0, 0, 0));
 
-  const [profile, nextAppointment] = await Promise.all([
-    prisma.patientProfile.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        treatmentPlans: {
-          where: { isActive: true },
-          include: {
-            exercises: {
-              include: {
-                exercise: true,
-                completedLogs: {
-                  where: { date: { gte: todayStart, lt: todayEnd } },
+  let profile, nextAppointment, todayCheckIn;
+
+  try {
+    [profile, nextAppointment] = await Promise.all([
+      prisma.patientProfile.findUnique({
+        where: { userId: session.user.id },
+        include: {
+          treatmentPlans: {
+            where: { isActive: true },
+            include: {
+              exercises: {
+                include: {
+                  exercise: true,
+                  completedLogs: {
+                    where: { date: { gte: todayStart, lt: todayEnd } },
+                  },
                 },
               },
+              restrictions: { where: { severity: 'CRITICAL' } },
+              nutrition: true,
             },
-            restrictions: { where: { severity: 'CRITICAL' } },
-            nutrition: true,
           },
+          progressLogs: { orderBy: { date: 'desc' }, take: 7 },
         },
-        progressLogs: { orderBy: { date: 'desc' }, take: 7 },
-      },
-    }),
-    prisma.appointment.findFirst({
-      where: {
-        patientId: session.user.id,
-        date: { gte: new Date() },
-        status: 'SCHEDULED',
-      },
-      orderBy: { date: 'asc' },
-    }),
-  ]);
+      }),
+      prisma.appointment.findFirst({
+        where: {
+          patientId: session.user.id,
+          date: { gte: new Date() },
+          status: 'SCHEDULED',
+        },
+        orderBy: { date: 'asc' },
+      }),
+    ]);
+  } catch (error) {
+    console.error('[patient/page] error cargando datos:', error);
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="flex justify-center mb-4">
+            <div className="bg-amber-100 rounded-full p-4">
+              <AlertTriangle className="w-8 h-8 text-amber-500" />
+            </div>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">No se pudo cargar tu panel</h2>
+          <p className="text-slate-500 text-sm">
+            Hubo un problema de conexión. Por favor recarga la página.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!profile || profile.treatmentPlans.length === 0) {
     return (
@@ -53,7 +74,14 @@ export default async function PatientDashboard() {
     );
   }
 
-  // Mergear ejercicios, restricciones y nutrición de TODOS los pilares activos
+  try {
+    todayCheckIn = await prisma.dailyCheckIn.findFirst({
+      where: { patientId: profile.id, date: { gte: todayStart, lt: todayEnd } },
+    });
+  } catch {
+    todayCheckIn = null;
+  }
+
   const allExercises = profile.treatmentPlans.flatMap(p => p.exercises);
   const allRestrictions = profile.treatmentPlans.flatMap(p => p.restrictions);
   const allNutrition = profile.treatmentPlans.flatMap(p => p.nutrition);
@@ -70,9 +98,6 @@ export default async function PatientDashboard() {
     }
   }));
 
-  const todayCheckIn = await prisma.dailyCheckIn.findFirst({
-    where: { patientId: profile.id, date: { gte: todayStart, lt: todayEnd } },
-  });
   const painLevelRecorded = !!todayCheckIn;
 
   const chartData = profile.progressLogs.map(log => ({

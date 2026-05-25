@@ -2,19 +2,39 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { UserPlus, ChevronRight, Activity } from 'lucide-react';
+import { UserPlus, ChevronRight, Activity, AlertTriangle } from 'lucide-react';
 
 export default async function PatientsPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'ADMIN') return null;
 
-  const patients = await prisma.patientProfile.findMany({
-    include: {
-      user: true,
-      treatmentPlans: { where: { isActive: true } },
-    },
-    orderBy: { startDate: 'desc' },
-  });
+  let patients;
+  try {
+    patients = await prisma.patientProfile.findMany({
+      include: {
+        user: true,
+        treatmentPlans: { where: { isActive: true } },
+      },
+      orderBy: { startDate: 'desc' },
+    });
+  } catch (error) {
+    console.error('[admin/patients] error cargando pacientes:', error);
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="flex justify-center mb-4">
+            <div className="bg-red-100 rounded-full p-4">
+              <AlertTriangle className="w-8 h-8 text-red-500" />
+            </div>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Error al cargar pacientes</h2>
+          <p className="text-slate-500 text-sm">
+            No se pudo conectar con la base de datos. Por favor recarga la página.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">

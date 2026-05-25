@@ -22,20 +22,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const parsed = await parseBody(req, createSchema);
-  if (!parsed.success) return parsed.response;
+  try {
+    const parsed = await parseBody(req, createSchema);
+    if (!parsed.success) return parsed.response;
 
-  const appointment = await prisma.appointment.create({
-    data: {
-      physioId: session.user.id,
-      patientId: parsed.data.patientUserId,
-      date: new Date(parsed.data.date),
-      mode: parsed.data.mode,
-      status: 'SCHEDULED',
-    },
-  });
+    const appointment = await prisma.appointment.create({
+      data: {
+        physioId: session.user.id,
+        patientId: parsed.data.patientUserId,
+        date: new Date(parsed.data.date),
+        mode: parsed.data.mode,
+        status: 'SCHEDULED',
+      },
+    });
 
-  return NextResponse.json(appointment, { status: 201 });
+    return NextResponse.json(appointment, { status: 201 });
+  } catch (error) {
+    console.error('[api/appointments POST] error:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }
 
 export async function PATCH(req: NextRequest) {
@@ -44,13 +49,18 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const parsed = await parseBody(req, updateSchema);
-  if (!parsed.success) return parsed.response;
+  try {
+    const parsed = await parseBody(req, updateSchema);
+    if (!parsed.success) return parsed.response;
 
-  const appointment = await prisma.appointment.update({
-    where: { id: parsed.data.id },
-    data: { status: parsed.data.status },
-  });
+    const appointment = await prisma.appointment.update({
+      where: { id: parsed.data.id },
+      data: { status: parsed.data.status },
+    });
 
-  return NextResponse.json(appointment);
+    return NextResponse.json(appointment);
+  } catch (error) {
+    console.error('[api/appointments PATCH] error:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

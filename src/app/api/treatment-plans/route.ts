@@ -10,47 +10,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const parsed = await parseBody(req, treatmentPlanSchema);
-  if (!parsed.success) return parsed.response;
-  const { patientId, pillar, diagnosis, treatmentText, exerciseIds, restrictions, nutrition } = parsed.data;
+  try {
+    const parsed = await parseBody(req, treatmentPlanSchema);
+    if (!parsed.success) return parsed.response;
+    const { patientId, pillar, diagnosis, treatmentText, exerciseIds, restrictions, nutrition } = parsed.data;
 
-  // Solo desactivar planes del mismo pilar (un paciente puede tener varios pilares activos).
-  await prisma.treatmentPlan.updateMany({
-    where: { patientId, pillar, isActive: true },
-    data: { isActive: false },
-  });
+    await prisma.treatmentPlan.updateMany({
+      where: { patientId, pillar, isActive: true },
+      data: { isActive: false },
+    });
 
-  const plan = await prisma.treatmentPlan.create({
-    data: {
-      patientId,
-      physioId: session.user.id,
-      pillar,
-      diagnosis,
-      treatmentText,
-      exercises: {
-        create: exerciseIds.map((exerciseId) => ({ exerciseId })),
+    const plan = await prisma.treatmentPlan.create({
+      data: {
+        patientId,
+        physioId: session.user.id,
+        pillar,
+        diagnosis,
+        treatmentText,
+        exercises: {
+          create: exerciseIds.map((exerciseId) => ({ exerciseId })),
+        },
+        restrictions: {
+          create: restrictions.map((r) => ({
+            description: r.description,
+            severity: r.severity,
+          })),
+        },
+        nutrition: {
+          create: nutrition.map((n) => ({
+            type: n.type,
+            description: n.description,
+            dose: n.dose || null,
+            time: n.time || null,
+          })),
+        },
       },
-      restrictions: {
-        create: restrictions.map((r) => ({
-          description: r.description,
-          severity: r.severity,
-        })),
+      include: {
+        exercises: { include: { exercise: true } },
+        restrictions: true,
+        nutrition: true,
       },
-      nutrition: {
-        create: nutrition.map((n) => ({
-          type: n.type,
-          description: n.description,
-          dose: n.dose || null,
-          time: n.time || null,
-        })),
-      },
-    },
-    include: {
-      exercises: { include: { exercise: true } },
-      restrictions: true,
-      nutrition: true,
-    },
-  });
+    });
 
-  return NextResponse.json(plan, { status: 201 });
+    return NextResponse.json(plan, { status: 201 });
+  } catch (error) {
+    console.error('[api/treatment-plans POST] error:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

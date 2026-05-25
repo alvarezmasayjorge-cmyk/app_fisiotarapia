@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { ArrowLeft, Activity, AlertTriangle, Apple, Calendar, FileText, Stethoscope, Plus, Pencil, Phone } from 'lucide-react';
+import { ArrowLeft, Activity, AlertTriangle, Apple, Calendar, FileText, Stethoscope, Plus, Pencil, Phone, WifiOff } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ProgressChart from './LazyProgressChart';
@@ -24,22 +24,42 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  const profile = await prisma.patientProfile.findUnique({
-    where: { id },
-    include: {
-      user: true,
-      treatmentPlans: {
-        where: { isActive: true },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          exercises: { include: { exercise: true } },
-          restrictions: true,
-          nutrition: true,
+  let profile;
+  try {
+    profile = await prisma.patientProfile.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        treatmentPlans: {
+          where: { isActive: true },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            exercises: { include: { exercise: true } },
+            restrictions: true,
+            nutrition: true,
+          },
         },
+        progressLogs: { orderBy: { date: 'desc' }, take: 14 },
       },
-      progressLogs: { orderBy: { date: 'desc' }, take: 14 },
-    },
-  });
+    });
+  } catch (error) {
+    console.error('[admin/patients/[id]] error cargando perfil:', error);
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="flex justify-center mb-4">
+            <div className="bg-red-100 rounded-full p-4">
+              <WifiOff className="w-8 h-8 text-red-500" />
+            </div>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Error de conexión</h2>
+          <p className="text-slate-500 text-sm">
+            No se pudo cargar el paciente. Por favor recarga la página.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!profile) return notFound();
 
@@ -50,17 +70,23 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
     if (!plansByPillar.has(key)) plansByPillar.set(key, p);
   }
 
-  const [appointments, medications] = await Promise.all([
-    prisma.appointment.findMany({
-      where: { patientId: profile.userId },
-      orderBy: { date: 'desc' },
-      take: 5,
-    }),
-    prisma.medication.findMany({
-      where: { patientId: profile.id },
-      orderBy: [{ isActive: 'desc' }, { createdAt: 'desc' }],
-    }),
-  ]);
+  let appointments: Awaited<ReturnType<typeof prisma.appointment.findMany>> = [];
+  let medications: Awaited<ReturnType<typeof prisma.medication.findMany>> = [];
+  try {
+    [appointments, medications] = await Promise.all([
+      prisma.appointment.findMany({
+        where: { patientId: profile.userId },
+        orderBy: { date: 'desc' },
+        take: 5,
+      }),
+      prisma.medication.findMany({
+        where: { patientId: profile.id },
+        orderBy: [{ isActive: 'desc' }, { createdAt: 'desc' }],
+      }),
+    ]);
+  } catch (error) {
+    console.error('[admin/patients/[id]] error cargando citas/medicamentos:', error);
+  }
 
   const chartData = profile.progressLogs.map(log => ({
     date: log.date.toISOString(),
