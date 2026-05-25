@@ -13,16 +13,22 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "tu@email.com" },
+        identifier: { label: "Email o Teléfono", type: "text", placeholder: "tu@email.com o +51999999999" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email y contraseña requeridos');
+        if (!credentials?.identifier || !credentials?.password) {
+          throw new Error('Email/Teléfono y contraseña requeridos');
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+        // Buscar por email o teléfono
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: credentials.identifier },
+              { phone: credentials.identifier }
+            ]
+          }
         });
 
         if (!user) {
@@ -37,7 +43,7 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: user.id,
-          email: user.email,
+          email: user.email || user.phone,
           name: user.name,
           role: user.role,
         };

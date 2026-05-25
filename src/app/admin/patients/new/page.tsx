@@ -78,15 +78,15 @@ export default function NewPatientPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Correo electrónico *</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
           <input
             type="email"
-            required
             value={form.email}
             onChange={e => setForm({ ...form, email: e.target.value })}
             placeholder="paciente@email.com"
             className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
           />
+          <p className="text-xs text-slate-400 mt-1">Opcional — si no ingresa correo, debe ingresar teléfono</p>
         </div>
 
         <div>

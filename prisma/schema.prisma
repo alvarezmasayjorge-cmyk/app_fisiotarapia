@@ -17,7 +17,7 @@ datasource db {
 model User {
   id             String    @id @default(cuid())
   name           String
-  email          String    @unique
+  email          String?   @unique
   password       String
   phone          String?   // celular / WhatsApp (con código de país, ej. +51999999999)
   role           String    @default("PATIENT") // ADMIN o PATIENT

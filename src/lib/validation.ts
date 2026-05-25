@@ -33,12 +33,15 @@ const phoneSchema = z
 
 export const patientCreateSchema = z.object({
   name: z.string().trim().min(2, 'Nombre demasiado corto'),
-  email: z.string().email('Email inválido'),
+  email: z.string().email('Email inválido').optional().or(z.literal('').transform(() => null)),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   phone: phoneSchema.optional().nullable().or(z.literal('').transform(() => null)),
   diagnosis: z.string().trim().min(2, 'Diagnóstico requerido'),
   notes: z.string().max(2000).optional().nullable(),
-});
+}).refine(
+  (data) => data.email || data.phone,
+  { message: 'Debe ingresar al menos email o teléfono', path: ['email'] }
+);
 
 export const patientUpdateSchema = z.object({
   name: z.string().trim().min(2, 'Nombre demasiado corto').optional(),

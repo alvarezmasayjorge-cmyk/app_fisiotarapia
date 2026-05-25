@@ -16,9 +16,18 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) return parsed.response;
     const { name, email, password, phone, diagnosis, notes } = parsed.data;
 
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return NextResponse.json({ error: 'Ya existe un usuario con ese correo' }, { status: 409 });
+    if (email) {
+      const existing = await prisma.user.findUnique({ where: { email } });
+      if (existing) {
+        return NextResponse.json({ error: 'Ya existe un usuario con ese correo' }, { status: 409 });
+      }
+    }
+
+    if (phone) {
+      const existing = await prisma.user.findFirst({ where: { phone } });
+      if (existing) {
+        return NextResponse.json({ error: 'Ya existe un usuario con ese teléfono' }, { status: 409 });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

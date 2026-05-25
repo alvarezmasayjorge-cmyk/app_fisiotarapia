@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ export default function LoginPage() {
     try {
       const res = await signIn('credentials', {
         redirect: false,
-        email,
+        identifier,
         password,
       });
 
@@ -56,14 +56,15 @@ export default function LoginPage() {
             
             <div>
               <label className="block text-sm font-medium text-slate-700">
-                Correo electrónico
+                Correo o Teléfono
               </label>
               <div className="mt-1">
                 <input
-                  type="email"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="tu@email.com o +51999999999"
                   className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-slate-900"
                 />
               </div>
