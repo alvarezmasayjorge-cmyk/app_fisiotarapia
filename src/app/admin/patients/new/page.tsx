@@ -12,7 +12,6 @@ export default function NewPatientPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     name: '',
-    email: '',
     password: '',
     phone: '',
     diagnosis: '',
@@ -78,18 +77,6 @@ export default function NewPatientPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={e => setForm({ ...form, email: e.target.value })}
-            placeholder="paciente@email.com"
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
-          />
-          <p className="text-xs text-slate-400 mt-1">Opcional — si no ingresa correo, debe ingresar teléfono</p>
-        </div>
-
-        <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña de acceso *</label>
           <div className="relative">
             <input
@@ -113,18 +100,19 @@ export default function NewPatientPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Celular / WhatsApp</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Número de WhatsApp *</label>
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="tel"
+              required
               value={form.phone}
               onChange={e => setForm({ ...form, phone: e.target.value })}
-              placeholder="+51 999 999 999"
+              placeholder="+591 7XX XXX XXX"
               className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
             />
           </div>
-          <p className="text-xs text-slate-400 mt-1">Opcional — incluye el código de país para WhatsApp</p>
+          <p className="text-xs text-slate-400 mt-1">El paciente usará este número para iniciar sesión</p>
         </div>
 
         <div>

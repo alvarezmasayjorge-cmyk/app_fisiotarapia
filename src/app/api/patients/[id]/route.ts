@@ -27,18 +27,10 @@ export async function PATCH(
 
     const parsed = await parseBody(req, patientUpdateSchema);
     if (!parsed.success) return parsed.response;
-    const { name, email, password, phone, diagnosis, notes, isActive } = parsed.data;
+    const { name, password, phone, diagnosis, notes, isActive } = parsed.data;
 
-    if (email && email !== profile.user.email) {
-      const dup = await prisma.user.findUnique({ where: { email } });
-      if (dup) {
-        return NextResponse.json({ error: 'Ya existe un usuario con ese correo' }, { status: 409 });
-      }
-    }
-
-    const userData: { name?: string; email?: string; password?: string; phone?: string | null } = {};
+    const userData: { name?: string; password?: string; phone?: string | null } = {};
     if (name !== undefined) userData.name = name;
-    if (email !== undefined) userData.email = email;
     if (password) userData.password = await bcrypt.hash(password, 10);
     if (phone !== undefined) userData.phone = phone || null;
 

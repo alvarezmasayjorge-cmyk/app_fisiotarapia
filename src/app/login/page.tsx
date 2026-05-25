@@ -56,7 +56,7 @@ export default function LoginPage() {
             
             <div>
               <label className="block text-sm font-medium text-slate-700">
-                Correo o Teléfono
+                Número de WhatsApp
               </label>
               <div className="mt-1">
                 <input
@@ -64,7 +64,7 @@ export default function LoginPage() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="tu@email.com o +51999999999"
+                  placeholder="+591 7XX XXX XXX"
                   className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-slate-900"
                 />
               </div>
@@ -99,6 +99,7 @@ export default function LoginPage() {
               <div className="mt-4 text-center text-xs text-slate-500">
                 <p>Demo Admin: doc@giovannadaza.app / admin123</p>
                 <p>Demo Paciente: rodilla@paciente.app / paciente123</p>
+                <p className="text-amber-500 mt-1">Pacientes nuevos: usar su número WhatsApp</p>
               </div>
             )}
           </form>
