@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import NavigationProgress from "@/components/NavigationProgress";
+import GlobalInstallPrompt from "@/components/GlobalInstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
         <Providers>
           <NavigationProgress />
           {children}
+          <GlobalInstallPrompt />
         </Providers>
       </body>
     </html>
