@@ -27,7 +27,6 @@ self.addEventListener('notificationclick', function (event) {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Si ya hay una ventana abierta, enfocala y navega
       for (const client of clientList) {
         if ('focus' in client) {
           client.focus();
@@ -35,10 +34,14 @@ self.addEventListener('notificationclick', function (event) {
           return;
         }
       }
-      // Si no hay ventana abierta, abre una nueva
       if (clients.openWindow) {
         return clients.openWindow(url);
       }
     })
   );
+});
+
+// PWA requirements: A fetch event handler is required to be installable.
+self.addEventListener('fetch', function (event) {
+  // Pass-through
 });
