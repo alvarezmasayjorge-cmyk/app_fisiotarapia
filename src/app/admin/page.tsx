@@ -80,7 +80,7 @@ export default async function AdminDashboard() {
             <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-medium text-slate-500 truncate">Inactividad</p>
+            <p className="text-xs font-medium text-slate-500 truncate">Sin reportes 3+ días</p>
             <p className="text-xl sm:text-2xl font-bold text-slate-900">{inactivePatients.length}</p>
           </div>
         </div>
