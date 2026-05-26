@@ -51,7 +51,7 @@ export default function PhoneInputBO({
           onChange={handleInputChange}
           maxLength={9}
           placeholder={placeholder}
-          className="w-full pl-[72px] pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900 disabled:bg-slate-50 disabled:cursor-not-allowed"
+          className="w-full pl-[84px] pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900 disabled:bg-slate-50 disabled:cursor-not-allowed"
         />
       </div>
     </div>
