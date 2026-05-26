@@ -53,6 +53,23 @@ export async function PATCH(req: NextRequest) {
     const parsed = await parseBody(req, updateSchema);
     if (!parsed.success) return parsed.response;
 
+    const existing = await prisma.appointment.findUnique({
+      where: { id: parsed.data.id },
+      select: { physioId: true, patientId: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Cita no encontrada' }, { status: 404 });
+    }
+
+    const isPhysio = existing.physioId === session.user.id;
+    const isPatient = existing.patientId === session.user.id;
+    if (!isPhysio && !isPatient) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    }
+    if (!isPhysio && parsed.data.status !== 'CANCELLED') {
+      return NextResponse.json({ error: 'Solo puedes cancelar tu cita' }, { status: 403 });
+    }
+
     const appointment = await prisma.appointment.update({
       where: { id: parsed.data.id },
       data: { status: parsed.data.status },

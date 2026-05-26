@@ -40,7 +40,7 @@ export async function DELETE(req: NextRequest) {
     const body = await req.json();
     const { endpoint } = body;
     if (!endpoint) return NextResponse.json({ error: 'endpoint requerido' }, { status: 400 });
-    await prisma.pushSubscription.deleteMany({ where: { endpoint } });
+    await prisma.pushSubscription.deleteMany({ where: { endpoint, userId: session.user.id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[api/push/subscribe DELETE] error:', error);

@@ -206,8 +206,8 @@ model MedicationDoseLog {
   notifiedAt    DateTime?
   takenAt       DateTime?
 
+  @@unique([medicationId, scheduledAt])
   @@index([scheduledAt, notifiedAt])
-  @@index([medicationId, scheduledAt])
 }
 
 model DailyCheckIn {
@@ -219,5 +219,6 @@ model DailyCheckIn {
   painLevel     Int?      // opcional
   notes         String?
 
+  @@unique([patientId, date])
   @@index([patientId, date])
 }

@@ -6,8 +6,13 @@ import { sendPushNotification } from '@/lib/webpush';
 // Manda una notificación push de prueba a TODOS los suscritos.
 // Útil para verificar que el sistema de push funciona end-to-end.
 export async function GET(req: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) {
+    console.error('[cron-test] CRON_SECRET no configurado — abortando');
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+  }
   const secret = req.headers.get('authorization');
-  if (secret !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (secret !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
