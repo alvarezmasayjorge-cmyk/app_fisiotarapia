@@ -123,6 +123,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
               email: profile.user.email,
               phone: profile.user.phone,
               notes: profile.notes,
+              isActive: profile.isActive,
             }}
           />
         </div>

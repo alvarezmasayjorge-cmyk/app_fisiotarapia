@@ -32,7 +32,8 @@ export const authOptions: NextAuthOptions = {
               { email: { equals: emailNorm, mode: 'insensitive' } },
               { phone: phoneNorm }
             ]
-          }
+          },
+          include: { patientProfile: { select: { isActive: true } } }
         });
 
         if (!user) {
@@ -43,6 +44,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!isValid) {
           throw new Error('Contraseña incorrecta');
+        }
+
+        if (user.role === 'PATIENT' && user.patientProfile && !user.patientProfile.isActive) {
+          throw new Error('Tu cuenta está inactiva. Contacta a tu doctora.');
         }
 
         return {

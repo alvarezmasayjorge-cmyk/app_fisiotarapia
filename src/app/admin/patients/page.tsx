@@ -4,13 +4,17 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { UserPlus, ChevronRight, Activity, AlertTriangle } from 'lucide-react';
 
-export default async function PatientsPage() {
+export default async function PatientsPage({ searchParams }: { searchParams: Promise<{ archived?: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'ADMIN') return null;
+
+  const sp = await searchParams;
+  const showArchived = sp.archived === '1';
 
   let patients;
   try {
     patients = await prisma.patientProfile.findMany({
+      where: { isActive: !showArchived },
       include: {
         user: true,
         treatmentPlans: { where: { isActive: true }, orderBy: { createdAt: 'desc' } },
@@ -41,15 +45,25 @@ export default async function PatientsPage() {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Pacientes</h1>
-          <p className="text-sm text-slate-500 mt-1">Gestiona todos tus pacientes</p>
+          <p className="text-sm text-slate-500 mt-1">
+            {showArchived ? 'Pacientes dados de alta' : 'Pacientes activos'}
+          </p>
         </div>
-        <Link
-          href="/admin/patients/new"
-          className="inline-flex items-center justify-center gap-2 bg-amber-500 text-white px-4 h-11 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm w-full sm:w-auto"
-        >
-          <UserPlus className="w-4 h-4" />
-          Nuevo Paciente
-        </Link>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Link
+            href={showArchived ? '/admin/patients' : '/admin/patients?archived=1'}
+            className="inline-flex items-center justify-center gap-2 px-3 h-11 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors text-sm font-medium"
+          >
+            {showArchived ? 'Ver activos' : 'Ver dados de alta'}
+          </Link>
+          <Link
+            href="/admin/patients/new"
+            className="inline-flex items-center justify-center gap-2 bg-amber-500 text-white px-4 h-11 rounded-lg hover:bg-amber-600 transition-colors font-medium text-sm shadow-sm flex-1 sm:flex-none"
+          >
+            <UserPlus className="w-4 h-4" />
+            Nuevo Paciente
+          </Link>
+        </div>
       </div>
 
       {patients.length === 0 ? (

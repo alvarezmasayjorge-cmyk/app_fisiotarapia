@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Pencil, Trash2, AlertTriangle, Eye, EyeOff, UserCheck, UserX } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import PhoneInputBO from '@/components/ui/PhoneInputBO';
 
@@ -13,6 +13,7 @@ type Props = {
     email: string | null;
     phone: string | null;
     notes: string | null;
+    isActive: boolean;
   };
 };
 
@@ -20,9 +21,11 @@ export default function PatientActions({ profileId, initial }: Props) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [error, setError] = useState('');
 
   const [form, setForm] = useState({
@@ -65,6 +68,29 @@ export default function PatientActions({ profileId, initial }: Props) {
     }
   };
 
+  const handleToggleActive = async () => {
+    setArchiving(true);
+    try {
+      const res = await fetch(`/api/patients/${profileId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !initial.isActive }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Error al cambiar estado');
+        setArchiving(false);
+        return;
+      }
+      setArchiveOpen(false);
+      router.refresh();
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      setArchiving(false);
+    }
+  };
+
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -90,6 +116,17 @@ export default function PatientActions({ profileId, initial }: Props) {
         className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
       >
         <Pencil className="w-3.5 h-3.5" /> Editar datos
+      </button>
+      <button
+        onClick={() => setArchiveOpen(true)}
+        className={`inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+          initial.isActive
+            ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            : 'bg-green-50 text-green-700 hover:bg-green-100'
+        }`}
+      >
+        {initial.isActive ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+        {initial.isActive ? 'Dar de alta' : 'Reactivar'}
       </button>
       <button
         onClick={() => setDeleteOpen(true)}
@@ -210,6 +247,47 @@ export default function PatientActions({ profileId, initial }: Props) {
             <button
               onClick={() => setDeleteOpen(false)}
               disabled={deleting}
+              className="px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={archiveOpen} onClose={() => setArchiveOpen(false)} title={initial.isActive ? 'Dar de alta' : 'Reactivar paciente'} size="sm">
+        <div className="space-y-4">
+          <div className={`flex gap-3 p-3 rounded-lg border ${initial.isActive ? 'bg-slate-50 border-slate-200' : 'bg-green-50 border-green-100'}`}>
+            <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${initial.isActive ? 'text-slate-500' : 'text-green-600'}`} />
+            <div className="text-sm text-slate-800">
+              {initial.isActive ? (
+                <>
+                  <p className="font-semibold">Vas a dar de alta a <strong>{initial.name}</strong>.</p>
+                  <p className="mt-1">
+                    No podrá iniciar sesión ni recibir recordatorios. No se borran sus datos — podés reactivarla más adelante si vuelve.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold">Vas a reactivar a <strong>{initial.name}</strong>.</p>
+                  <p className="mt-1">Volverá a poder iniciar sesión y recibir recordatorios.</p>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={handleToggleActive}
+              disabled={archiving}
+              className={`flex-1 text-white px-4 py-2.5 rounded-lg transition-colors font-medium text-sm disabled:opacity-50 ${
+                initial.isActive ? 'bg-slate-700 hover:bg-slate-800' : 'bg-green-600 hover:bg-green-700'
+              }`}
+            >
+              {archiving ? 'Guardando...' : initial.isActive ? 'Sí, dar de alta' : 'Sí, reactivar'}
+            </button>
+            <button
+              onClick={() => setArchiveOpen(false)}
+              disabled={archiving}
               className="px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               Cancelar
