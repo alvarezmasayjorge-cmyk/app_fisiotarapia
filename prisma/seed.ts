@@ -9,11 +9,11 @@ async function main() {
   // 1. Create Physio (Admin)
   const hashedAdminPassword = await bcrypt.hash('admin123', 10);
   const admin = await prisma.user.upsert({
-    where: { email: 'doc@giovannadaza.app' },
+    where: { phone: '+59170000000' },
     update: { name: 'Giovanna Daza' },
     create: {
       name: 'Giovanna Daza',
-      email: 'doc@giovannadaza.app',
+      phone: '+59170000000',
       password: hashedAdminPassword,
       role: 'ADMIN',
     },
@@ -21,13 +21,13 @@ async function main() {
 
   // 2. Create Patients
   const hashedPatientPassword = await bcrypt.hash('paciente123', 10);
-  
+
   const p1 = await prisma.user.upsert({
-    where: { email: 'rodilla@paciente.app' },
+    where: { phone: '+59171111111' },
     update: {},
     create: {
       name: 'Ana García',
-      email: 'rodilla@paciente.app',
+      phone: '+59171111111',
       password: hashedPatientPassword,
       role: 'PATIENT',
       patientProfile: {
@@ -41,11 +41,11 @@ async function main() {
   });
 
   const p2 = await prisma.user.upsert({
-    where: { email: 'lumbar@paciente.app' },
+    where: { phone: '+59172222222' },
     update: {},
     create: {
       name: 'Roberto Torres',
-      email: 'lumbar@paciente.app',
+      phone: '+59172222222',
       password: hashedPatientPassword,
       role: 'PATIENT',
       patientProfile: {
@@ -59,11 +59,11 @@ async function main() {
   });
 
   const p3 = await prisma.user.upsert({
-    where: { email: 'hombro@paciente.app' },
+    where: { phone: '+59173333333' },
     update: {},
     create: {
       name: 'Luisa Sánchez',
-      email: 'hombro@paciente.app',
+      phone: '+59173333333',
       password: hashedPatientPassword,
       role: 'PATIENT',
       patientProfile: {

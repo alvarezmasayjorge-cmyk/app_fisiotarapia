@@ -10,7 +10,6 @@ type Props = {
   profileId: string;
   initial: {
     name: string;
-    email: string | null;
     phone: string | null;
     notes: string | null;
     isActive: boolean;
@@ -30,7 +29,6 @@ export default function PatientActions({ profileId, initial }: Props) {
 
   const [form, setForm] = useState({
     name: initial.name,
-    email: initial.email ?? '',
     phone: initial.phone ?? '',
     password: '',
     notes: initial.notes ?? '',
@@ -43,7 +41,6 @@ export default function PatientActions({ profileId, initial }: Props) {
     try {
       const payload: Record<string, string> = {
         name: form.name,
-        email: form.email,
         phone: form.phone,
         notes: form.notes,
       };
@@ -143,27 +140,15 @@ export default function PatientActions({ profileId, initial }: Props) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
-              <input
-                type="text"
-                required
-                value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Correo</label>
-              <input
-                type="email"
-                required
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
+            <input
+              type="text"
+              required
+              value={form.name}
+              onChange={e => setForm({ ...form, name: e.target.value })}
+              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
+            />
           </div>
 
           <div>

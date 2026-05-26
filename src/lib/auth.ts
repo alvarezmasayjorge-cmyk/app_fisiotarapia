@@ -13,26 +13,18 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        identifier: { label: "Email o Teléfono", type: "text", placeholder: "tu@email.com o +51999999999" },
+        identifier: { label: "Teléfono", type: "text", placeholder: "+59171234567" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) {
-          throw new Error('Email/Teléfono y contraseña requeridos');
+          throw new Error('Teléfono y contraseña requeridos');
         }
 
-        const raw = credentials.identifier.trim();
-        const emailNorm = raw.toLowerCase();
-        const phoneNorm = raw.replace(/[\s\-()]/g, '');
+        const phoneNorm = credentials.identifier.trim().replace(/[\s\-()]/g, '');
 
-        // Buscar por email (case-insensitive) o teléfono (sin espacios/guiones)
         const user = await prisma.user.findFirst({
-          where: {
-            OR: [
-              { email: { equals: emailNorm, mode: 'insensitive' } },
-              { phone: phoneNorm }
-            ]
-          },
+          where: { phone: phoneNorm },
           include: { patientProfile: { select: { isActive: true } } }
         });
 
@@ -52,7 +44,7 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: user.id,
-          email: user.email || user.phone,
+          email: user.phone ?? user.id,
           name: user.name,
           role: user.role,
         };

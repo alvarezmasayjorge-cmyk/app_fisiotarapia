@@ -106,7 +106,6 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           </Link>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">{profile.user.name}</h1>
-            <p className="text-slate-500 text-xs sm:text-sm truncate">{profile.user.email}</p>
             <p className="text-slate-600 text-xs sm:text-sm mt-0.5 line-clamp-2">
               {profile.treatmentPlans.length > 0
                 ? profile.treatmentPlans[0]?.diagnosis
@@ -120,7 +119,6 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             profileId={profile.id}
             initial={{
               name: profile.user.name,
-              email: profile.user.email,
               phone: profile.user.phone,
               notes: profile.notes,
               isActive: profile.isActive,

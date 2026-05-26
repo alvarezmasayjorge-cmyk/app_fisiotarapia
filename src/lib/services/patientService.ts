@@ -3,7 +3,7 @@ import type { PatientProfile } from '@/types/models';
 
 export type PatientCreateInput = {
   name: string;
-  email: string;
+  phone: string;
   password: string;
   diagnosis: string;
   notes?: string | null;
