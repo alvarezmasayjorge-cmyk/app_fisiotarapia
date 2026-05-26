@@ -107,7 +107,11 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">{profile.user.name}</h1>
             <p className="text-slate-500 text-xs sm:text-sm truncate">{profile.user.email}</p>
-            <p className="text-slate-600 text-xs sm:text-sm mt-0.5 line-clamp-2">{profile.diagnosis}</p>
+            <p className="text-slate-600 text-xs sm:text-sm mt-0.5 line-clamp-2">
+              {profile.treatmentPlans.length > 0
+                ? profile.treatmentPlans[0]?.diagnosis
+                : 'Pendiente de diagnóstico'}
+            </p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -118,7 +122,6 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
               name: profile.user.name,
               email: profile.user.email,
               phone: profile.user.phone,
-              diagnosis: profile.diagnosis,
               notes: profile.notes,
             }}
           />
@@ -131,8 +134,12 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           <h3 className="font-semibold text-slate-900 mb-2">Información</h3>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Diagnóstico general</dt>
-              <dd className="text-slate-900 font-medium text-right max-w-[60%]">{profile.diagnosis}</dd>
+              <dt className="text-slate-500">Diagnóstico</dt>
+              <dd className="text-slate-900 font-medium text-right max-w-[60%]">
+                {profile.treatmentPlans.length > 0
+                  ? profile.treatmentPlans[0]?.diagnosis
+                  : 'Pendiente de diagnóstico'}
+              </dd>
             </div>
             {profile.user.phone && (
               <div className="flex justify-between items-center">

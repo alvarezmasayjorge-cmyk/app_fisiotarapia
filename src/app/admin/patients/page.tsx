@@ -13,7 +13,7 @@ export default async function PatientsPage() {
     patients = await prisma.patientProfile.findMany({
       include: {
         user: true,
-        treatmentPlans: { where: { isActive: true } },
+        treatmentPlans: { where: { isActive: true }, orderBy: { createdAt: 'desc' } },
       },
       orderBy: { startDate: 'desc' },
     });
@@ -78,7 +78,11 @@ export default async function PatientsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-slate-900 truncate">{p.user.name}</p>
                     <p className="text-xs text-slate-500 truncate">{p.user.phone ?? '—'}</p>
-                    <p className="text-sm text-slate-700 mt-2 line-clamp-2">{p.diagnosis}</p>
+                    <p className="text-sm text-slate-700 mt-2 line-clamp-2">
+                      {p.treatmentPlans.length > 0
+                        ? p.treatmentPlans[0]?.diagnosis
+                        : 'Pendiente de diagnóstico'}
+                    </p>
                     <div className="flex flex-wrap gap-1.5 mt-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         p.isActive ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-600'
@@ -121,7 +125,11 @@ export default async function PatientsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-slate-700 max-w-xs truncate">{p.diagnosis}</p>
+                        <p className="text-sm text-slate-700 max-w-xs truncate">
+                          {p.treatmentPlans.length > 0
+                            ? p.treatmentPlans[0]?.diagnosis
+                            : 'Pendiente de diagnóstico'}
+                        </p>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

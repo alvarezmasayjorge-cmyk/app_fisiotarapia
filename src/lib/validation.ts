@@ -31,11 +31,17 @@ const phoneSchema = z
   .regex(/^\+?[0-9\s\-()]{7,20}$/, 'Teléfono inválido')
   .transform((v) => v.replace(/[\s\-()]/g, ''));
 
+export const patientSelfRegisterSchema = z.object({
+  name: z.string().trim().min(2, 'Nombre demasiado corto'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  phone: phoneSchema,
+});
+
 export const patientCreateSchema = z.object({
   name: z.string().trim().min(2, 'Nombre demasiado corto'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   phone: phoneSchema,
-  diagnosis: z.string().trim().min(2, 'Diagnóstico requerido'),
+  diagnosis: z.string().trim().min(2, 'Diagnóstico requerido').optional().default(''),
   notes: z.string().max(2000).optional().nullable(),
 });
 

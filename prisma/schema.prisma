@@ -44,7 +44,7 @@ model PatientProfile {
   userId                 String    @unique
   user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  diagnosis              String
+  diagnosis              String    @default("")
   startDate              DateTime  @default(now())
   notes                  String?
   isActive               Boolean   @default(true)

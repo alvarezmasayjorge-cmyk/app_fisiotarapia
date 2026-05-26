@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, AlertTriangle, Eye, EyeOff, Phone } from 'lucide-react';
+import { Pencil, Trash2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
+import PhoneInputBO from '@/components/ui/PhoneInputBO';
 
 type Props = {
   profileId: string;
@@ -11,7 +12,6 @@ type Props = {
     name: string;
     email: string | null;
     phone: string | null;
-    diagnosis: string;
     notes: string | null;
   };
 };
@@ -30,7 +30,6 @@ export default function PatientActions({ profileId, initial }: Props) {
     email: initial.email ?? '',
     phone: initial.phone ?? '',
     password: '',
-    diagnosis: initial.diagnosis,
     notes: initial.notes ?? '',
   });
 
@@ -43,7 +42,6 @@ export default function PatientActions({ profileId, initial }: Props) {
         name: form.name,
         email: form.email,
         phone: form.phone,
-        diagnosis: form.diagnosis,
         notes: form.notes,
       };
       if (form.password) payload.password = form.password;
@@ -133,16 +131,10 @@ export default function PatientActions({ profileId, initial }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Celular / WhatsApp</label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={e => setForm({ ...form, phone: e.target.value })}
-                placeholder="+51 999 999 999"
-                className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
-              />
-            </div>
+            <PhoneInputBO
+              value={form.phone}
+              onChange={phone => setForm({ ...form, phone })}
+            />
           </div>
 
           <div>
@@ -165,17 +157,6 @@ export default function PatientActions({ profileId, initial }: Props) {
               </button>
             </div>
             <p className="text-xs text-slate-400 mt-1">Solo cámbiala si el paciente la olvidó</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Diagnóstico general</label>
-            <input
-              type="text"
-              required
-              value={form.diagnosis}
-              onChange={e => setForm({ ...form, diagnosis: e.target.value })}
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900"
-            />
           </div>
 
           <div>

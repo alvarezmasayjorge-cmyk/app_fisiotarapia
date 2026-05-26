@@ -8,11 +8,12 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isAuthPage = pathname.startsWith('/login')
+  const isRegistroPage = pathname.startsWith('/registro')
   const isAdminPage = pathname.startsWith('/admin')
   const isPatientPage = pathname.startsWith('/patient')
 
-  // If on login page and already authenticated, redirect to home
-  if (isAuthPage) {
+  // If on login/registro page and already authenticated, redirect to home
+  if (isAuthPage || isRegistroPage) {
     if (isAuth) {
       return NextResponse.redirect(new URL('/', request.url))
     }
@@ -37,5 +38,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/patient/:path*', '/login'],
+  matcher: ['/admin/:path*', '/patient/:path*', '/login', '/registro'],
 }

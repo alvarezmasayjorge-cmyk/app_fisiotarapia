@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
+import PhoneInputBO from '@/components/ui/PhoneInputBO';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,24 +57,15 @@ export default function LoginPage() {
             )}
             
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Número de WhatsApp
               </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  required
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="+591 7XX XXX XXX"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  autoComplete="username"
-                  inputMode="text"
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-slate-900"
-                />
-              </div>
+              <PhoneInputBO
+                value={identifier}
+                onChange={setIdentifier}
+                required
+                className="mt-1"
+              />
             </div>
 
             <div>
@@ -102,6 +95,15 @@ export default function LoginPage() {
               >
                 {loading ? 'Iniciando sesión...' : 'Entrar'}
               </button>
+            </div>
+
+            <div className="text-center">
+              <p className="text-sm text-slate-600">
+                ¿Primera vez?{' '}
+                <Link href="/registro" className="font-medium text-amber-500 hover:text-amber-600">
+                  Regístrate aquí
+                </Link>
+              </p>
             </div>
             
             {process.env.NODE_ENV === 'development' && (

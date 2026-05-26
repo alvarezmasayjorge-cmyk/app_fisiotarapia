@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, UserPlus, Eye, EyeOff, Phone } from 'lucide-react';
+import { ArrowLeft, UserPlus, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import PhoneInputBO from '@/components/ui/PhoneInputBO';
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function NewPatientPage() {
     name: '',
     password: '',
     phone: '',
-    diagnosis: '',
     notes: '',
   });
 
@@ -101,30 +101,12 @@ export default function NewPatientPage() {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Número de WhatsApp *</label>
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="tel"
-              required
-              value={form.phone}
-              onChange={e => setForm({ ...form, phone: e.target.value })}
-              placeholder="+591 7XX XXX XXX"
-              className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
-            />
-          </div>
-          <p className="text-xs text-slate-400 mt-1">El paciente usará este número para iniciar sesión</p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Diagnóstico *</label>
-          <input
-            type="text"
+          <PhoneInputBO
+            value={form.phone}
+            onChange={phone => setForm({ ...form, phone })}
             required
-            value={form.diagnosis}
-            onChange={e => setForm({ ...form, diagnosis: e.target.value })}
-            placeholder="Ej: Hernia discal L4-L5"
-            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-slate-900"
           />
+          <p className="text-xs text-slate-400 mt-1">El paciente usará este número para iniciar sesión</p>
         </div>
 
         <div>
