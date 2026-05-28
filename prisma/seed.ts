@@ -19,6 +19,17 @@ async function main() {
     },
   });
 
+  const admin2 = await prisma.user.upsert({
+    where: { phone: '+59175013150' },
+    update: { name: 'Giovanna Daza (Respaldo)' },
+    create: {
+      name: 'Giovanna Daza (Respaldo)',
+      phone: '+59175013150',
+      password: hashedAdminPassword,
+      role: 'ADMIN',
+    },
+  });
+
   // 2. Create Patients
   const hashedPatientPassword = await bcrypt.hash('paciente123', 10);
 

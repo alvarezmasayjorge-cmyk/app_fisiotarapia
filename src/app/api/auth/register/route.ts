@@ -21,7 +21,10 @@ export async function POST(req: NextRequest) {
 
     const existing = await prisma.user.findFirst({ where: { phone } });
     if (existing) {
-      return NextResponse.json({ error: 'Ya existe una cuenta con ese número de WhatsApp' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'Ya tienes una cuenta creada con este número. Por favor, inicia sesión.', code: 'ACCOUNT_EXISTS' },
+        { status: 409 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

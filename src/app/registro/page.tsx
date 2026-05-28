@@ -15,11 +15,13 @@ export default function RegistroPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [accountExists, setAccountExists] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setAccountExists(false);
     setLoading(true);
 
     try {
@@ -35,7 +37,11 @@ export default function RegistroPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || 'Error al registrarse');
+        if (data.code === 'ACCOUNT_EXISTS') {
+          setAccountExists(true);
+        } else {
+          setError(data.error || 'Error al registrarse');
+        }
         return;
       }
 
@@ -73,6 +79,23 @@ export default function RegistroPage() {
           <p className="text-sm text-slate-600 mb-6">Regístrate como paciente para empezar tu tratamiento</p>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
+            {accountExists && (
+              <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                <p className="text-sm text-amber-800 font-medium">
+                  😊 ¡Ya tienes una cuenta creada con este número!
+                </p>
+                <p className="text-sm text-amber-700 mt-1">
+                  Por favor, inicia sesión con tu número y contraseña.
+                </p>
+                <Link
+                  href="/login"
+                  className="inline-block mt-2 text-sm font-semibold text-amber-600 hover:text-amber-700 underline underline-offset-2"
+                >
+                  Ir a Iniciar Sesión →
+                </Link>
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
                 <p className="text-sm text-red-700">{error}</p>

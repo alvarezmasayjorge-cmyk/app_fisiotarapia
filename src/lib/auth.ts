@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isValid) {
-          throw new Error('Contraseña incorrecta');
+          throw new Error('La contraseña es incorrecta. Por favor, pide a tu doctora que te cambie la contraseña.');
         }
 
         if (user.role === 'PATIENT' && user.patientProfile && !user.patientProfile.isActive) {
